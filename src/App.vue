@@ -1,15 +1,23 @@
 <template>
   <div id="app">
-    <section class="header">
+    <section class="nav-container">
+      <div v-if="!isLoggedIn" class="reservation-sign-up">
+        <h3>
+          <router-link class="auth-btn" to="/signup">Sign Up</router-link> or <router-link class="auth-btn" to="/login">Login</router-link> to make a reservation!
+        </h3>
+      </div>
       <nav class="nav">
         <div class="navbar">
           <div class="navbar-brand">
             <h3>Beekel Farms Kennel</h3>
           </div>
           <ul class="navbar-nav">
-            <li class="nav-item link"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item link"><a class="nav-link" href="/about">About Us</a></li>
-            <li class="nav-item link"><a class="nav-link" href="/services">Services</a></li>
+            <li class="nav-item link"><router-link class="nav-link" to="/">Home</router-link></li>
+            <li class="nav-item link"><router-link class="nav-link" to="/about">About Us</router-link></li>
+            <li class="nav-item link"><router-link class="nav-link" to="/services">Services</router-link></li>
+            <li class="nav-item link"><router-link to="/services" class="nav-link">Reservation</router-link></li>
+            <li v-for="item in menu" :key="item.name" class="nav-item link"><router-link :to="item.to" class="nav-link">{{ item.name }}</router-link></li>
+            <li @click="onLogout" v-if="isLoggedIn" class="nav-item link"><router-link class="nav-link" to="/services">Logout</router-link></li>
             <li class="nav-item menu"><a class="menu-btn" href="#sidebar" uk-toggle><i class="fas fa-bars"></i></a></li>
           </ul>
         </div>
@@ -23,18 +31,15 @@
             </div>
 
             <ul class="side-nav">
-              <li class="side-nav-item"><a href="/" class="side-nav-link">Home</a></li>
-              <li class="side-nav-item"><a href="/about" class="side-nav-link">About Us</a></li>
-              <li class="side-nav-item"><a href="/services" class="side-nav-link">Services</a></li>
+              <li class="side-nav-item"><router-link to="/" class="side-nav-link">Home</router-link></li>
+              <li class="side-nav-item"><router-link to="/about" class="side-nav-link">About Us</router-link></li>
+              <li class="side-nav-item"><router-link to="/services" class="side-nav-link">Services</router-link></li>
+              <li class="side-nav-item"><router-link to="/services" class="side-nav-link">Reservation</router-link></li>
+              <li v-for="item in menu" :key="item.name"  class="side-nav-item"><router-link :to="item.to" class="side-nav-link">{{ item.name }}</router-link></li>
             </ul>
           </div>
         </div>
       </nav>
-      <header class="hero">
-        <div class="logo-img">
-          <img src="@/assets/logo.png" alt="">
-        </div>
-      </header>
     </section>
 
     <router-view/>
@@ -78,11 +83,58 @@
   </div>
 </template>
 
-<style lang="scss">
-.header {
-  height: 95vh;
-  width: 100%;
-  margin-bottom: 170px;
+<script>
+import { mapGetters, mapActions } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters('auth', ['user']),
+    isLoggedIn() {
+      return this.user !== null && this.user !== undefined
+    },
+    menu() {
+      let menuItems = [
+        { to: '/signup', name: 'Sign Up' },
+        { to: '/login', name: 'Login' },
+      ]
+      if (this.isLoggedIn) {
+        menuItems = [
+          { to: '/profile', name: 'Profile' },
+        ]
+      }
+      return menuItems
+    },
+  },
+  methods: {
+    ...mapActions('auth', ['logout']),
+    onLogout() {
+      this.logout()
+      if (!this.isLoggedIn) {
+        this.$router.push('/login')
+      }
+    }
+  }
+}
+</script>
+
+
+<style lang="scss" scoped>
+// RESERVATION HEADER SECTION
+
+.reservation-sign-up {
+  background: #C2B59B;
+  height: 100%;
+  padding: 8px;
+}
+
+.reservation-sign-up h3 {
+  margin: 0 auto;
+  text-align: center;
+  color: #001B54;
+}
+
+.reservation-sign-up h3 .auth-btn {
+  color: #fff;
 }
 
 /* NAVBAR */
@@ -162,26 +214,6 @@
 
 .side-nav-link:hover {
   text-decoration: none;
-}
-
-/* HEADER */
-
-.hero {
-  background-image: linear-gradient(0deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)), url("./assets/dogs.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 100%;
-}
-
-.logo-img {
-  max-width: 500px;
-  margin: 0px auto;
-  padding-top: 20px;
-}
-
-.logo-img img {
-  width: 100%;
 }
 
 /* FOOTER SECTION */

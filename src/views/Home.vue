@@ -1,5 +1,11 @@
 <template>
   <div class="home">
+    <header class="hero">
+      <div class="logo-img">
+        <img src="../assets/logo.png" alt="">
+      </div>
+    </header>
+
     <main>
       <section class="intro">
         <div class="title-container">
@@ -88,6 +94,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* HEADER SECTION */
+
+.hero {
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)), url("../assets/dogs.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 95vh;
+  width: 100%;
+  margin-bottom: 80px;
+  
+}
+
+.logo-img {
+  max-width: 500px;
+  margin: 0px auto;
+  padding-top: 20px;
+}
+
+.logo-img img {
+  width: 100%;
+}
+
 /* INTRO SECTION */
 
 .intro {
