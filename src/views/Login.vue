@@ -2,12 +2,12 @@
   <div class="login">
     <h1>Login</h1>
 
-    <form @submit.prevent="onSubmit" class="form">
-      <div class="google-login">
-        <button @click="loginWithGoogle">Login with Google <i class="fab fa-google"></i></button>
-        <p>Or Login with</p>
-      </div>
+    <div class="google-login">
+      <button @click="loginWithGoogle">Login with Google <i class="fab fa-google"></i></button>
+      <p>Or Login with</p>
+    </div>
 
+    <form @submit.prevent="onSubmit" class="form">
       <input v-model="user.email" type="text" class="form-group" placeholder="Email">
       <input v-model="user.password" type="password" class="form-group" placeholder="Password">
       <button class="submit-btn" type="submit">Submit</button>
@@ -24,6 +24,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import UIkit from 'uikit';
 
 export default {
   name: 'login',
@@ -40,7 +41,12 @@ export default {
     ...mapActions('auth', ['loginWithGoogle', 'loginWithEmail']),
     onSubmit() {
       if (this.user.email === '' || this.user.password === '') {
-        this.error = 'Email and password are required.'
+        UIkit.notification({
+          message: 'Please enter email and password',
+          status: 'danger',
+          pos: 'top-center',
+          timeout: 4000
+        });
       } else {
         this.loginWithEmail(this.user)
         this.$router.push('/')
@@ -64,6 +70,11 @@ export default {
 }
 
 /* GOOGLE LOGIN SECTION */
+
+.google-login {
+  max-width: 605px;
+  margin: 0 auto;
+}
 
 .google-login button{
   width: 100%;
@@ -94,6 +105,8 @@ export default {
   font-size: 1.2rem;
   margin-bottom: 10px;
   outline: none;
+  border: 1px solid #001B54;
+  color: #001B54;
 }
 
 .submit-btn {

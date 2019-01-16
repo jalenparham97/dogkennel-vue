@@ -1,21 +1,26 @@
 <template>
   <div class="signup">
     <h1>Sign Up</h1>
+    
+    <div class="google-signup">
+      <button @click="signupWithGoogle">Sign Up with Google <i class="fab fa-google"></i></button>
+      <p>Or Sign up with</p>
+    </div>
 
     <form @submit.prevent="onSubmit" class="form">
-      <div class="google-signup">
-        <button @click="signupWithGoogle">Sign Up with Google <i class="fab fa-google"></i></button>
-        <p>Or Sign up with</p>
+      <div class="input-group">
+        <input v-model="user.email" type="text" class="form-group" placeholder="Email">
       </div>
 
-      <div v-if="error" class="uk-alert-danger" uk-alert>
-        <a class="uk-alert-close" uk-close></a>
-        <p>{{ error }}</p>
+      <div class="input-group">
+        <input v-model="user.password" type="password" class="form-group" placeholder="Password">
       </div>
 
-      <input v-model="user.email" type="text" class="form-group" placeholder="Email">
-      <input v-model="user.password" type="password" class="form-group" placeholder="Password">
-      <input v-model="confirmPassword" type="password" class="form-group" placeholder="Confirm Password">
+      <div class="input-group">
+        <input v-model="confirmPassword" type="password" class="form-group" placeholder="Confirm Password">
+        <small class="confirmPassword">{{ passwordConfirm }}</small>
+      </div>
+
       <button class="submit-btn" type="submit">Submit</button>
     </form>
 
@@ -30,6 +35,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import UIkit from 'uikit';
 
 export default {
   name: 'signup',
@@ -40,14 +46,23 @@ export default {
         password: '',
       },
       confirmPassword: '',
-      error: ''
+    }
+  },
+  computed: {
+    passwordConfirm() {
+      return this.user.password !== this.confirmPassword ? 'Passwords do not match' : ''
     }
   },
   methods: {
     ...mapActions('auth', ['signupWithGoogle', 'signUpEmail']),
     onSubmit() {
       if (this.user.email === '' || this.user.password === '' || this.confirmPassword === '') {
-        this.error = 'Please enter Email and Password.'
+        UIkit.notification({
+          message: 'Please enter Email and Password!',
+          status: 'danger',
+          pos: 'top-center',
+          timeout: 4000
+        });
       } else {
         if (this.confirmPassword === this.user.password) {
           this.signUpEmail(this.user)
@@ -75,6 +90,11 @@ export default {
 }
 
 /* GOOGLE SIGNUP SECTION */
+
+.google-signup {
+  max-width: 605px;
+  margin: 0 auto;
+}
 
 .google-signup button{
   width: 100%;
@@ -105,6 +125,8 @@ export default {
   font-size: 1.2rem;
   margin-bottom: 10px;
   outline: none;
+  border: 1px solid #001B54;
+  color: #001B54;
 }
 
 .submit-btn {
@@ -113,6 +135,17 @@ export default {
   color: #fff;
   background: #001B54;
   cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.confirmPassword {
+  color: #db3236;
   margin-bottom: 10px;
 }
 

@@ -19,9 +19,9 @@ const actions = {
         user_id: user.user.uid,
         email: user.user.email,
       }
-      // db.collection('users').doc(newUser.user_id).set(newUser)
+      db.collection('users').doc(newUser.user_id).set(newUser)
       commit('setUser', newUser)
-      router.push('/')
+      router.push(`/new/profile/${state.user.user_id}`)
     }).catch(error => {
       console.log(error)
     })
@@ -35,6 +35,7 @@ const actions = {
         email: user.user.email,
       }
       commit('setUser', setUser)
+      router.push(`/new/profile/${state.user.user_id}`)
     }).catch(error => {
       console.log(error)
     })
@@ -46,22 +47,29 @@ const actions = {
         user_id: user.user.uid,
         email: user.user.email,
       }
-      // db.collection('users').doc(newUser.user_id).set(newUser)
+      db.collection('users').doc(newUser.user_id).set(newUser)
       commit('setUser', newUser)
-      router.push('/')
+      if (user.additionalUserInfo.isNewUser) {
+        router.push(`/new/profile/${state.user.user_id}`)
+      } 
+      console.log(user)
     }).catch(error => {
       console.log(error)
     })
   },
 
-  loginWithGoogle({ commit }) {
+  loginWithGoogle({ state, commit }) {
     firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(user => {
       const setUser = {
         user_id: user.user.uid,
         email: user.user.email,
       }
       commit('setUser', setUser)
-      router.push('/')
+      // if (!user.additionalUserInfo.isNewUser) {
+        
+      // } 
+      router.push(`/new/profile/${state.user.user_id}`)
+      console.log(user)
     }).catch(error => {
       console.log(error)
     })
