@@ -2,25 +2,6 @@
   <div class="general-info">
     <form @submit.prevent="onSubmit" class="form">
       <div class="profile-form">
-        <h2>Owner Profile</h2>
-
-        <label for="firstName">First Name</label>
-        <input v-model="profile.firstName" type="text" class="form-group" placeholder="First Name" name="firstName">
-
-        <label for="lastName">Last Name</label>
-        <input v-model="profile.lastName" type="text" class="form-group" placeholder="Last Name" name="lastName">
-
-        <label for="phone">Phone Number</label>
-        <input v-model="profile.phone" type="text" class="form-group" placeholder="Phone Number" name="phone">
-
-        <label for="email">Email Address</label>
-        <input v-model="profile.email" type="text" class="form-group" placeholder="Email Address" name="email">
-
-        <label for="address">Home Address</label>
-        <input v-model="profile.address" type="text" class="form-group" placeholder="Home Address" name="address">
-      </div>
-
-      <div class="profile-form">
         <h2>Veterinarian Info</h2>
 
         <label for="clinic">Clinic Name</label>
@@ -40,7 +21,7 @@
       </div>
 
       <div class="profile-form">
-        <h2>Pet Profile</h2>
+        <h2>Pet Info</h2>
 
         <label for="petName">Name</label>
         <input v-model="profile.petName" type="text" class="form-group" placeholder="Name" name="petName">
@@ -58,11 +39,6 @@
           </div>
         </div>
 
-        <div class="medical-records">
-          <label for="records">Medical Records</label>
-          <input @change="onFileUpload" type="file" multiple name="records" class="records">
-        </div>
-
         <label for="petMedicine">Medicine</label>
         <input v-model="profile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine">
 
@@ -77,8 +53,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import firebase from 'firebase'
+import { mapActions } from 'vuex'
 import UIkit from 'uikit'
 import axios from 'axios'
 
@@ -87,11 +62,6 @@ export default {
   data() {
     return {
       profile: {
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        address: '',
         clinic: '',
         vetPhone: '',
         vetAddress: '',
@@ -107,11 +77,7 @@ export default {
       breeds: []
     }
   },
-  created() {
-    this.profile.email = this.user.email
-  },
   computed: {
-    ...mapGetters('auth', ['user']),
     formIsValid() {
       if (this.profile.firstName === '' || this.profile.lastName === '' || this.profile.phone === '' || this.profile.email === '' || this.profile.address === '' || this.profile.clinic === '' || this.profile.vetPhone === '' || this.profile.vetEmail === '' || this.profile.vetAddress === '' || this.profile.vetFax === '' || this.profile.petName === '' || this.profile.petAge === '' || this.profile.petBreed === '' || this.profile.petMedice === '' || this.profile.petDiet === '') {
         return false
@@ -156,18 +122,7 @@ export default {
     },
     selectBreed(breed) {
       this.profile.petBreed = breed
-    },
-    onFileUpload(e) {
-      // Get file
-      let files = e.target.files
-
-      for (let file of files) {
-        // Create a storage ref
-        let storageRef = firebase.storage().ref(`medical_records/${this.user.user_id}/${file.name}`)
-        // Upload file
-        storageRef.put(file)
-      }
-    },
+    }
   }
 }
 </script>
@@ -248,14 +203,6 @@ export default {
   margin-right: 10px;
 }
 
-.medical-records {
-  margin: 10px 0px;
-}
-
-.records {
-  margin-left: 20px;
-}
-
 .submit-btn {
   background: #001B54;
   color: #fff;
@@ -263,3 +210,4 @@ export default {
   cursor: pointer;
 }
 </style>
+

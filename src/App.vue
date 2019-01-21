@@ -36,6 +36,7 @@
               <li class="side-nav-item"><router-link to="/services" class="side-nav-link">Services</router-link></li>
               <li class="side-nav-item"><router-link to="/reservation" class="side-nav-link">Reservation</router-link></li>
               <li v-for="item in menu" :key="item.name"  class="side-nav-item"><router-link :to="item.to" class="side-nav-link">{{ item.name }}</router-link></li>
+              <li @click="onLogout" v-if="isLoggedIn" class="side-nav-item"><router-link class="side-nav-link" to="/login">Logout</router-link></li>
             </ul>
           </div>
         </div>
@@ -99,7 +100,7 @@ export default {
       ]
       if (this.isLoggedIn) {
         menuItems = [
-          { to: '/profile', name: 'Profile' },
+          { to: `/profile/${this.user.user_id}`, name: 'Profile' },
         ]
       }
       return menuItems

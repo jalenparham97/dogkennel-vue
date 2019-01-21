@@ -35,7 +35,7 @@ const actions = {
         email: user.user.email,
       }
       commit('setUser', setUser)
-      router.push(`/new/profile/${state.user.user_id}`)
+      router.push(`/new/profile/${state.user.user_id}`) 
     }).catch(error => {
       console.log(error)
     })
@@ -51,7 +51,9 @@ const actions = {
       commit('setUser', newUser)
       if (user.additionalUserInfo.isNewUser) {
         router.push(`/new/profile/${state.user.user_id}`)
-      } 
+      } else {
+        router.push(`/profile/${state.user.user_id}`)
+      }
       console.log(user)
     }).catch(error => {
       console.log(error)
@@ -65,10 +67,11 @@ const actions = {
         email: user.user.email,
       }
       commit('setUser', setUser)
-      // if (!user.additionalUserInfo.isNewUser) {
-        
-      // } 
-      router.push(`/new/profile/${state.user.user_id}`)
+      if (user.additionalUserInfo.isNewUser) {
+        router.push(`/new/profile/${state.user.user_id}`)
+      } else {
+        router.push(`/profile/${state.user.user_id}`)
+      }
       console.log(user)
     }).catch(error => {
       console.log(error)

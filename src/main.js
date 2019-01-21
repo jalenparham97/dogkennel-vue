@@ -17,11 +17,13 @@ new Vue({
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.autoLogIn(user)
+        this.getProfile()
       }
     })
   },
   methods: {
-    ...mapActions('auth', ['autoLogIn'])
+    ...mapActions('auth', ['autoLogIn']),
+    ...mapActions('profile', ['getProfile'])
   },
   render: h => h(App)
 }).$mount('#app')

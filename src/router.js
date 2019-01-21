@@ -6,6 +6,8 @@ import Login from './views/Login.vue'
 import Signup from './views/Signup.vue'
 import Profile from './views/Profile.vue'
 import ProfileForm from './views/ProfileForm.vue'
+import DogProfile from './views/DogProfile.vue'
+import Reservation from './views/Reservation.vue'
 
 Vue.use(Router)
 
@@ -37,6 +39,21 @@ export default new Router({
       path: '/new/profile/:id',
       name: 'profileform',
       component: ProfileForm
+    },
+    {
+      path: '/new/pet/profile',
+      name: 'dogprofile',
+      component: DogProfile
+    },
+    {
+      path: '/profile/:id',
+      name: 'profile',
+      component: Profile
+    },
+    {
+      path: '/reservation',
+      name: 'reservation',
+      component: Reservation
     }
   ]
 })
