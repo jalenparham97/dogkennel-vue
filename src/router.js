@@ -8,6 +8,7 @@ import Profile from './views/Profile.vue'
 import ProfileForm from './views/ProfileForm.vue'
 import DogProfile from './views/DogProfile.vue'
 import Reservation from './views/Reservation.vue'
+import Services from './views/Services.vue'
 
 Vue.use(Router)
 
@@ -54,6 +55,11 @@ export default new Router({
       path: '/reservation',
       name: 'reservation',
       component: Reservation
-    }
+    },
+    {
+      path: '/services',
+      name: 'services',
+      component: Services
+    },
   ]
 })

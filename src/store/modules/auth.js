@@ -7,9 +7,12 @@ const state = {
 }
 
 const mutations = {
-  setUser(state, payload) {
+  setUser: (state, payload) => {
     state.user = payload 
   },
+  reset: state => {
+    state.user = null
+  }
 }
 
 const actions = {
@@ -29,7 +32,6 @@ const actions = {
 
   loginWithEmail({ commit }, payload) {
     firebase.auth().signInWithEmailAndPassword(payload.email, payload.password).then(user => {
-      console.log(user)
       const setUser = {
         user_id: user.user.uid,
         email: user.user.email,
@@ -54,13 +56,12 @@ const actions = {
       } else {
         router.push(`/profile/${state.user.user_id}`)
       }
-      console.log(user)
     }).catch(error => {
       console.log(error)
     })
   },
 
-  loginWithGoogle({ state, commit }) {
+  loginWithGoogle({ state, dispatch, commit }) {
     firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(user => {
       const setUser = {
         user_id: user.user.uid,
@@ -71,8 +72,8 @@ const actions = {
         router.push(`/new/profile/${state.user.user_id}`)
       } else {
         router.push(`/profile/${state.user.user_id}`)
+        dispatch('profile/getProfile', { root: true })
       }
-      console.log(user)
     }).catch(error => {
       console.log(error)
     })
@@ -87,8 +88,8 @@ const actions = {
   },
 
   logout({ commit }) {
+    commit('reset')
     firebase.auth().signOut()
-    commit('setUser', null) 
   }
 }
 

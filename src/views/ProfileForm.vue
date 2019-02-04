@@ -43,14 +43,14 @@
         <h2>Pet Profile</h2>
 
         <label for="petName">Name</label>
-        <input v-model="profile.petName" type="text" class="form-group" placeholder="Name" name="petName">
+        <input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName">
 
         <label for="petAge">Age</label>
-        <input v-model="profile.petAge" type="text" class="form-group" placeholder="Age" name="petAge">
+        <input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge">
 
         <div class="breed-group">
           <label for="petBreed">Breed</label>
-          <input @click="getDogBreeds" v-model="profile.petBreed" type="text" class="form-group" placeholder="Breed" name="petBreed">
+          <input @click="getDogBreeds" v-model="petProfile.petBreed" type="text" class="form-group" placeholder="Breed" name="petBreed">
           <div class="breed-dropdown" uk-dropdown="mode: click">
             <ul class="breeds">
               <li @click="selectBreed(breed.name)" v-for="breed in filteredBreeds" :key="breed.id" class="breed"><span>{{ breed.name }}</span></li>
@@ -64,10 +64,10 @@
         </div>
 
         <label for="petMedicine">Medicine</label>
-        <input v-model="profile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine">
+        <input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine">
 
         <label for="petDiet">Dietary Restrictions</label>
-        <input v-model="profile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet">
+        <input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet">
       </div>
 
       <button class="submit-btn" type="submit">Save & Make a Reservation</button>
@@ -81,6 +81,7 @@ import { mapActions, mapGetters } from 'vuex'
 import firebase from 'firebase'
 import UIkit from 'uikit'
 import axios from 'axios'
+import uuid from 'uuid'
 
 export default {
   name: 'profileform',
@@ -97,11 +98,14 @@ export default {
         vetAddress: '',
         vetEmail: '',
         vetFax: '',
+      },
+      petProfile: {
         petName: '',
         petAge: '',
         petBreed: '',
         petMedice: '',
-        petDiet: ''
+        petDiet: '',
+        profile_id: uuid()
       },
       error: '',
       breeds: []
@@ -126,7 +130,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('profile', ['saveProfile']),
+    ...mapActions('profile', ['saveProfile', 'addPetProfile']),
     onSubmit() {
       if (!this.formIsValid) {
         UIkit.notification({
@@ -137,6 +141,7 @@ export default {
         }); 
       } else {
         this.saveProfile(this.profile)
+        this.addPetProfile(this.petProfile)
       }
     },
     getDogBreeds() {
