@@ -90,20 +90,15 @@ export default {
     font-size: 1.2rem;
   }
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 900px) {
     .services-cards {
       flex-direction: column;
 
 
       & .uk-card {
         margin: 0 auto;
+        width: 95%;
       }
-    }
-  }
-
-  @media only screen and (max-width: 400px) {
-    .uk-card {
-      width: 100%;
     }
   }
 </style>
