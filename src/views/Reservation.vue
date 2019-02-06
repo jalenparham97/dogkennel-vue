@@ -57,23 +57,24 @@
     </div>
 
     <el-dialog
-      title="Select Kennel"
       :visible.sync="dialogVisible"
-      width="70%">
-
+      width="400px">
       <ul class="uk-list">
-        <p>Available Runs</p>
-        <li v-for="kennel in kennels" :key="kennel.id" class="">
+        <h2>Available Runs</h2>
+        <li v-for="kennel in kennels" :key="kennel.id" class="kennel">
           <span>{{ kennel.kennel_name }}</span> <button @click="selectRun(kennel.kennel_name)">Select</button>
         </li>
       </ul>
 
       <span slot="footer" class="dialog-footer">
-        <span v-if="reservation.selectedRun !== ''">Selected Run: {{ reservation.selectedRun }}</span>
-        <button @click="cancelDialog">Cancel</button>
-        <button @click="dialogVisible = false">Confirm</button>
+        <span class="select-run" v-if="reservation.selectedRun !== ''">Selected Run: {{ reservation.selectedRun }}</span>
+        <div class="dialog-action-btns">
+          <button class="cancel-btn" @click="cancelDialog">Cancel</button>
+          <button class="confirm-btn" @click="dialogVisible = false">Confirm</button>
+        </div>
       </span>
     </el-dialog>
+
     <div class="preview-reserve">
       <button class="show-preview" @click="togglePreview">Preview Reservation</button>
 
@@ -82,11 +83,11 @@
         <p class="checkin">Check In Date: {{ checkinDate }}, {{ reservation.checkin_time }}</p>
         <p class="checkout">Check Out Date: {{ checkoutDate }}, {{ reservation.checkout_time }}</p>
         <p>Selected Kennel: {{ reservation.selectedRun }}</p>
-        <div class="profiles">
+        <div class="profiles" v-if="petsAdded">
           <h3>Profiles Added:</h3>
-          <div class="pet-info">
-            <h3 class="profile" v-for="pet in reservation.pets_reserved" :key="pet.profile_id">{{ pet.pet_name }}</h3>
-            <button class="delete-btn">delete</button>
+          <div class="pet-info" v-for="(pet, index) in reservation.pets_reserved" :key="pet.profile_id">
+            <h3 class="profile">{{ pet.pet_name }}</h3>
+            <button class="delete-btn" @click="deleteProfile(index)">delete</button>
           </div>
         </div>
       </div>
@@ -100,6 +101,7 @@
 import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
 import uuid from 'uuid'
+import UIkit from 'uikit';
 
 export default {
   name: 'reservation',
@@ -157,6 +159,12 @@ export default {
     },
     addPetProfile(pet) {
       this.reservation.pets_reserved.push({ pet_name: pet.petName, profile_id: pet.profile_id })
+      UIkit.notification({
+        message: 'Profile Added!',
+        status: 'success',
+        pos: 'top-center',
+        timeout: 4000
+      });
     },
     togglePreview() {
       this.showPreview = !this.showPreview
@@ -167,6 +175,12 @@ export default {
     cancelDialog() {
       this.reservation.selectedRun = '',
       this.dialogVisible = false
+    },
+    deleteProfile(index) {
+      this.reservation.pets_reserved.splice(index, 1)
+    },
+    petsAdded() {
+      this.reservation.pets_reserved !== [] ? true : false 
     }
   }
 }
@@ -228,7 +242,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 auto;
+  margin: auto auto 10px auto;
   width: 300px;
   padding: 5px;
   border-radius: 3px;
@@ -297,8 +311,56 @@ export default {
   text-align: center;
 }
 
-span.el-radio-button__inner {
-  background: #001B54 !important;
+.confirm-btn, .cancel-btn {
+  padding: 10px 20px;
+  border-radius: 3px;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #fff;
+}
+
+.confirm-btn {
+  background: #001B54;
+}
+
+.cancel-btn {
+  background: #db3236;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.select-run {
+  font-size: 1.2rem;
+}
+
+.kennel {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kennel span {
+  font-size: 1.2rem;
+}
+
+.kennel button {
+  padding: 5px 20px;
+  border-radius: 3px;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #fff;
+  margin-left: 10px;
+  background: #001B54;
+}
+
+.uk-list h2 {
+  text-align: center;
+}
+
+.dialog-action-btns {
+  display: flex;
+  flex-direction: column;
 }
 
 @media only screen and (max-width: 1000px) {
@@ -329,7 +391,7 @@ span.el-radio-button__inner {
   }
 
   div.el-date-editor {
-    width: 350px;
+    width: 330px;
     margin: 0 auto;
   }
 
