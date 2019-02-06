@@ -59,14 +59,14 @@
         <h3>Your Reservations</h3>
 
         <ul class="reservations"> 
-          <li v-for="(reservation, index) in reservations" :key="reservation.id" class="reservation">
+          <li v-for="(reservation) in reservations" :key="reservation.id" class="reservation">
             <div class="reservation-info">
               <span>Check In: {{ checkinDate(reservation) }}, {{ reservation.checkin_time }}</span> 
               <span>Check Out: {{ checkoutDate(reservation) }}, {{ reservation.checkout_time }}</span>
               <span>Pets Reserved: <span v-for="pet in reservation.pets_reserved" :key="pet.profile_id">{{ pet.pet_name }}</span></span>
             </div>
             <div class="options-btns">
-              <button class="cancel" @click="cancel(reservation.id, index)">Cancel</button>
+              <button class="cancel" @click="cancel(reservation.id)">Cancel</button>
             </div>
           </li>
         </ul>
@@ -106,8 +106,7 @@ export default {
       const lastInitial = this.profile.lastName.split('')
       return `${firstInitial[0]}${lastInitial[0]}`
     },
-    cancel(id, index) {
-      this.reservations.splice(index, 1)
+    cancel(id) {
       this.cancelReservation(id)
     }
   }

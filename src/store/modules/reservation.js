@@ -10,6 +10,9 @@ const mutations = {
   addReservations: (state, payload) => {
     state.reservations.push(payload)
   },
+  setReservations: (state, reservaions) => {
+    state.reservations = reservaions
+  },
   reset: state => {
     state.reservations = []
   },
@@ -19,28 +22,31 @@ const mutations = {
 }
 
 const actions = {
-  saveReservation: async ({ rootState, commit }, payload) => {
+  saveReservation: ({ rootState, commit }, payload) => {
     console.log(payload)
     const reservation = {...payload, creator_id: rootState.auth.user.user_id}
     commit('addReservations', reservation)
     router.push(`/profile/${rootState.auth.user.user_id}`)
     db.collection('reservations').add(reservation)
   },
-  getReservations: ({ rootState, state, commit }) => {
+  getReservations: ({ rootState, commit }) => {
     db.collection('reservations').where('creator_id', '==', rootState.auth.user.user_id).get().then(snapShot => {
+      const reservations = []
       snapShot.docs.forEach(doc => {
-        commit('addReservations', doc.data())
+        reservations.push({...doc.data()})
       })
+      commit('setReservations', reservations)
     })
   },
   resetState: ({ commit }) => {
     commit('reset')
   },
   cancelReservation: ({ dispatch }, payload) => {
-    db.collection('reservations').where('id', '==', payload).onSnapshot(snapShot => {
+    db.collection('reservations').where('id', '==', payload).get().then(snapShot => {
       snapShot.docs.forEach(doc => {
         doc.ref.delete()
       })
+      dispatch('getReservations')
     })
   },
   async getKennels({ commit }) {
