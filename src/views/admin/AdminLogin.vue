@@ -1,41 +1,23 @@
 <template>
   <div class="login-container">
-    <Navbar></Navbar>
-
     <div class="login">
-      <h1>Login</h1>
+      <h1>Admin Login</h1>
 
-      <div class="google-login">
-        <button @click="loginWithGoogle">Login with Google <i class="fab fa-google"></i></button>
-        <p>Or Login with</p>
-      </div>
-
-      <form @submit.prevent="onSubmit" class="form">
+      <form @submit.prevent="adminLogin" class="form">
         <input v-model="user.email" type="text" class="form-group" placeholder="Email">
         <input v-model="user.password" type="password" class="form-group" placeholder="Password">
         <button class="submit-btn" type="submit">Submit</button>
       </form>
-
-      <div class="signup-account">
-        <p>
-          Don't have an account?
-          <router-link to="/signup" class="signup-link">Sign Up</router-link>
-        </p>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Navbar from '../components/Navbar'
 import { mapActions, mapGetters } from 'vuex'
 import UIkit from 'uikit';
 
 export default {
-  name: 'login',
-  components: {
-    Navbar
-  },
+  name: 'AdminLogin',
   data() {
     return {
       user: {
@@ -46,21 +28,19 @@ export default {
     }
   },
   methods: {
-    ...mapActions('auth', ['loginWithGoogle', 'loginWithEmail']),
-    onSubmit() {
+    adminLogin() {
       if (this.user.email === '' || this.user.password === '') {
         UIkit.notification({
-          message: 'Please enter email and password',
+          message: 'Email and password required',
           status: 'danger',
           pos: 'top-center',
           timeout: 4000
         });
-      } else {
-        this.loginWithEmail(this.user)
-        this.$router.push('/')
+      } else { 
+        this.$store.dispatch('adminLogin', this.user)
       }
     }
-  }
+  }  
 }
 </script>
 
@@ -70,36 +50,14 @@ export default {
   margin: 40px auto;
 }
 
-/* SIGNUP TITLE */
+/* ADMIN LOGIN TITLE */
 
 .login h1 {
   text-align: center;
   color: #001B54;
 }
 
-/* GOOGLE LOGIN SECTION */
-
-.google-login {
-  max-width: 605px;
-  margin: 0 auto;
-}
-
-.google-login button{
-  width: 100%;
-  padding: 10px;
-  font-size: 1.2rem;
-  color: #fff;
-  background: #db3236;
-  cursor: pointer;
-  border: none;
-  border-radius: 0px;
-}
-
-.google-login p {
-  text-align: center;
-}
-
-/* SIGNUP FORM */
+/* ADMIN LOGIN FORM */
 
 .form {
   display: flex;

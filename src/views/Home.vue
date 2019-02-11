@@ -1,5 +1,7 @@
 <template>
   <div class="home">
+    <Navbar></Navbar>
+
     <header class="hero">
       <div class="logo-img">
         <img src="../assets/logo.png" alt="">
@@ -90,11 +92,13 @@
 
 <script>
 import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
 
 export default {
   name: 'home',
   components: {
-    Footer
+    Footer,
+    Navbar
   }
 }
 </script>

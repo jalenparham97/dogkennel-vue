@@ -1,33 +1,13 @@
 <template>
   <div class="container-profile">
-    <Navbar></Navbar>
-
     <div class="profile">
-      <div class="sidebar">
-        <div class="heading">
-          <h1 class="initials">{{ initials() }}</h1>
-          <h2 class="name">{{ profile.firstName }} {{ profile.lastName }}</h2>
-        </div>
-        
-        <div class="side-navigation">
-          <ul class="sidenav">
-            <li class="nav-item">
-              <router-link to="/reservation" class="nav-link">Make a Reservation</router-link>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link">Edit Profile</a>
-            </li>
-            <li class="nav-item">
-              <router-link to="" class="nav-link" @click="logout">Logout</router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
+     
       <div class="profile-container">
         <div class="profile-info">
           <div class="container">
             <div class="contact-info">
               <h3>Contact Information</h3>
+              <p class="name contact">Name: {{ profile.firstName }} {{ profile.lastName }}</p>
               <p class="phone contact">Phone: {{ profile.phone }}</p>
               <p class="email contact">Email: {{ profile.email }}</p>
               <p class="address contact">Address: {{ profile.address }}</p>
@@ -40,6 +20,74 @@
               <p class="vet vet-email">Email: {{ profile.vetEmail }}</p>
               <p class="vet vet-address">Address: {{ profile.vetAddress }}</p>
             </div>
+
+            <div class="edit-profile">
+              <el-button class="edit-btn" @click="dialogVisible = true">Edit</el-button>
+            </div>
+          </div>
+
+          <div class="edit-dialog">
+            <el-dialog
+              :visible.sync="dialogVisible"
+              width="70%">
+              <form>
+
+                <div class="user-info">
+
+                  <h3 class="user-information">User Information</h3>
+
+                  <el-input 
+                    placeholder="First Name" 
+                    v-model="updatedProfile.firstName">
+                  </el-input>
+                  <el-input 
+                    placeholder="Last Name" 
+                    v-model="updatedProfile.lastName">
+                  </el-input>
+                  <el-input 
+                    placeholder="Phone" 
+                    v-model="updatedProfile.phone">
+                  </el-input>
+                  <el-input 
+                    placeholder="Email" 
+                    v-model="updatedProfile.email">
+                  </el-input>
+                  <el-input 
+                    placeholder="Address" 
+                    v-model="updatedProfile.address">
+                  </el-input>
+
+                  <h3 class="vet-information">Vet Information</h3>
+
+                  <el-input 
+                    placeholder="Clinic Name" 
+                    v-model="updatedProfile.clinic">
+                  </el-input>
+                   <el-input 
+                    placeholder="Clinic Phone" 
+                    v-model="updatedProfile.vetPhone">
+                  </el-input>
+                  <el-input 
+                    placeholder="Clinic Address" 
+                    v-model="updatedProfile.vetAddress">
+                  </el-input>
+                  <el-input 
+                    placeholder="Clinic Email" 
+                    v-model="updatedProfile.vetEmail">
+                  </el-input>
+                  <el-input 
+                    placeholder="Clinic Fax" 
+                    v-model="updatedProfile.vetFax">
+                  </el-input>
+                </div>
+
+              </form>
+
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="updateProfile">Save</el-button>
+              </span>
+            </el-dialog>
           </div>
 
           <div class="pet-info">
@@ -59,7 +107,7 @@
         </div>
 
         <div class="reservations-container">
-          <h3>Your Reservations</h3>
+          <h3>Reservations</h3>
 
           <ul class="reservations"> 
             <li v-for="(reservation) in reservations" :key="reservation.id" class="reservation">
@@ -80,56 +128,58 @@
 </template>
 
 <script>
-import Navbar from '../components/Navbar'
-import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
- 
+
 export default {
-  name: 'profile',
-  components: {
-    Navbar
-  },
-  data() {
-    return {
-      more: 'More',
-      togglePetDiet: false,   
+  name: 'SelectedProfile',
+  data: () => ({
+    edit: false,
+    dialogVisible: false,
+    updatedProfile: {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      address: '',
+      clinic: '',
+      vetEmail: '',
+      vetAddress: '',
+      vetPhone: '',
+      vetFax: ''  
     }
+  }),
+  created() {
+    this.$store.dispatch('selectProfile', this.$route.params.id)
   },
   computed: {
-    ...mapGetters('profile', ['profile', 'petProfiles']),
-    ...mapGetters('reservation', ['reservations']),
+    profile() {
+      this.updatedProfile = this.$store.getters.selectedProfile
+      return this.updatedProfile
+    },
+    petProfiles() {
+      return this.$store.getters.selectedProfilePets
+    },
+    reservations() {
+      return this.$store.getters.selectedProfileReservations
+    }
   },
   methods: {
-    ...mapActions('profile', ['getProfile']),
-    ...mapActions('auth', ['logout']),
-    ...mapActions('reservation', ['cancelReservation']),
     checkinDate(reservation) {
       return moment(reservation.dates.checkin_date).format('MMM Do YYYY')
     },
     checkoutDate(reservation) {
       return moment(reservation.dates.checkout_date).format('MMM Do YYYY')
     },
-    initials() {
-      const firstInitial = this.profile.firstName.split('')
-      const lastInitial = this.profile.lastName.split('')
-      return `${firstInitial[0]}${lastInitial[0]}`
-    },
-    cancel(id) {
-      this.cancelReservation(id)
+    updateProfile() {
+      this.$store.dispatch('updateProfile', this.profile)
+      console.log(this.profile)
+      this.dialogVisible = false
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-/* PROFILE SECTION */
-
-.profile {
-  display: flex;
-  height: 100vh;
-}
-
-.profile-container {
+<style scoped lang="scss">
+  .profile-container {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
@@ -191,8 +241,7 @@ export default {
   text-decoration: underline;
 }
 
-/* RESERVATION SECTION */
-
+// Reservation Section
 .reservations-container {
   margin: 40px auto 0px auto;
   width: 90%;
@@ -239,99 +288,17 @@ export default {
   }
 }
 
-.edit {
+.edit-btn {
   background: #4CB544;
+  color: #fff;
 
   &:hover {
     background: #337a2e;
+    color: #fff;
   }
 }
 
-/* SIDEBAR SECTION */
-
-.sidebar {
-  width: 400px;
-  background: #E7EAED;
+.el-input  {
+  margin-bottom: 10px;
 }
-
-.heading {
-  border-bottom: 2px solid #001B54;
-}
-
-.initials {
-  color: #001B54;
-  background: #C2B59B;
-  padding: 15px;
-  border-radius: 50%;
-  width: 70px;
-  margin: 20px auto;
-  text-align: center;
-  font-size: 4rem;
-}
-
-.name {
-  text-align: center;
-}
-
-.sidenav {
-  list-style: none;
-  padding: 0px;
-}
-
-.nav-item {
-  text-align: center;
-  padding: 10px;
-  
-  &:hover {
-    .nav-link {
-      color: #fff;
-    }
-    background: #001B54;
-  }
-}
-
-.nav-link {
-  color: #001B54;
-  text-decoration: none;
-  font-size: 1.2rem;
-}
-
-/* MEDIA QUERY */
-
-@media only screen and (max-width: 993px) {
-  .profile {
-    flex-direction: column;
-  }
-
-  .profile-container {
-    display: flex;
-    flex-direction: column;
-    overflow-y: initial;
-    width: 100%;
-  }
-
-  .contact-info, .vet-info, .pet-info {
-    width: 100%;
-  }
-
-  .reservation {
-    flex-direction: column;
-  }
-
-  .reservation-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-  }
-}
-
-@media only screen and (max-width: 700px) {
-  .container {
-    flex-direction: column;
-  }
-}
-
 </style>

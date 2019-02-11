@@ -1,5 +1,7 @@
 <template>
   <div class="services">
+    <Navbar></Navbar>
+
     <div class="services-heading">
       <div class="cog"><i class="fas fa-cog cog-icon"></i></div>
       <h2>Our Services</h2>
@@ -28,11 +30,13 @@
 
 <script>
 import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
 
 export default {
   name: 'services',
   components: {
-    Footer
+    Footer,
+    Navbar
   }
 }
 </script>

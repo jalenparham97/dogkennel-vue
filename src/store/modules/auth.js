@@ -3,7 +3,7 @@ import router from '@/router'
 import db from '@/db/db'
 
 const state = {
-  user: null
+  user: null,
 }
 
 const mutations = {
@@ -94,9 +94,7 @@ const actions = {
 }
 
 const getters = {
-  user(state) {
-    return state.user
-  }
+  user: state => state.user,
 }
 
 export default {

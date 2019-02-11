@@ -1,5 +1,7 @@
 <template>
   <div class="about">
+    <Navbar></Navbar>
+
     <div class="about-container">
       <div class="mission">
         <h1>- Our Mission -</h1>
@@ -45,11 +47,13 @@
 
 <script>
 import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
 
 export default {
   name: 'about',
   components: {
-    Footer
+    Footer,
+    Navbar
   }
 }
 </script>

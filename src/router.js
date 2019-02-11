@@ -9,6 +9,11 @@ import ProfileForm from './views/ProfileForm.vue'
 import DogProfile from './views/DogProfile.vue'
 import Reservation from './views/Reservation.vue'
 import Services from './views/Services.vue'
+import AdminLogin from './views/admin/AdminLogin.vue'
+import AdminPage from './views/admin/AdminPage.vue'
+import ReservationSearch from './views/admin/ReservationSearch.vue'
+import SelectedProfile from './views/admin/SelectedProfile.vue'
+import SearchOwners from './views/admin/SearchOwners.vue'
 
 Vue.use(Router)
 
@@ -60,6 +65,31 @@ export default new Router({
       path: '/services',
       name: 'services',
       component: Services
+    },
+    {
+      path: '/admin/bfk/login',
+      name: 'AdminLogin',
+      component: AdminLogin
+    },
+    {
+      path: '/admin/bfk',
+      name: 'AdminPage',
+      component: AdminPage
+    },
+    {
+      path: '/admin/bfk/reservations',
+      name: 'ReservationSearch',
+      component: ReservationSearch
+    },
+    {
+      path: '/admin/bfk/profile/:id',
+      name: 'SelectedProfile',
+      component: SelectedProfile
+    },
+    {
+      path: '/admin/bfk/search',
+      name: 'SearchOwners',
+      component: SearchOwners
     },
   ]
 })

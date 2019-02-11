@@ -5,12 +5,11 @@ import store from './store/store'
 import firebase from 'firebase'
 import db from './db/db'
 import VCalendar from 'v-calendar'
-import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog} from 'element-ui'
+import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog, Option, Button, Input } from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
-import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css'
 import './assets/theme/element-variables.scss'
-import 'v-calendar/lib/v-calendar.min.css'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
 
@@ -29,6 +28,9 @@ Vue.use(Radio)
 Vue.use(RadioGroup)
 Vue.use(RadioButton)
 Vue.use(Dialog)
+Vue.use(Option)
+Vue.use(Button)
+Vue.use(Input)
 
 new Vue({
   router,

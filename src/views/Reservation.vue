@@ -1,4 +1,7 @@
 <template>
+<div class="reservation-container">
+  <Navbar></Navbar>
+
   <div class="reservation">
     <div class="reservation-form">
       <form class="reservation-container">
@@ -95,9 +98,11 @@
       <button @click="bookReservation" class="reserve-btn">Make Reservation</button>
     </div>
   </div>
+</div>
 </template>
 
 <script>
+import Navbar from '../components/Navbar'
 import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
 import uuid from 'uuid'
@@ -105,6 +110,9 @@ import UIkit from 'uikit';
 
 export default {
   name: 'reservation',
+  components: {
+    Navbar
+  },
   data() {
     return {
       reservation: {
@@ -124,7 +132,7 @@ export default {
   },
   computed: {
     ...mapGetters('auth', ['user']),
-    ...mapGetters('profile', ['petProfiles']),
+    ...mapGetters('profile', ['petProfiles', 'profile']),
     ...mapGetters('reservation', ['kennels']),
     checkinDate() {
       return moment(this.reservation.checkin_date).format('MMM Do YYYY')
@@ -145,12 +153,15 @@ export default {
     bookReservation() {
       if (this.formIsValid) {
         this.saveReservation({ 
-          checkin_date: moment(this.reservation.checkin_date).valueOf(),
+          dates: {
+            checkin_date: moment(this.reservation.checkin_date).valueOf(),
+            checkout_date: moment(this.reservation.checkout_date).valueOf(),
+          },
           checkin_time: this.reservation.checkin_time,
-          checkout_date: moment(this.reservation.checkout_date).valueOf(),
           checkout_time: this.reservation.checkout_time,  
           pets_reserved: this.reservation.pets_reserved,
           selected_kennel: this.reservation.selectedRun,
+          owner: `${this.profile.firstName} ${this.profile.lastName}`,
           id: uuid()
         })
       } else {

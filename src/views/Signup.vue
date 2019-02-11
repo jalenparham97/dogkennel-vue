@@ -1,44 +1,52 @@
 <template>
-  <div class="signup">
-    <h1>Sign Up</h1>
-    
-    <div class="google-signup">
-      <button @click="signupWithGoogle">Sign Up with Google <i class="fab fa-google"></i></button>
-      <p>Or Sign up with</p>
-    </div>
+  <div class="signup-container">
+    <Navbar></Navbar>
 
-    <form @submit.prevent="onSubmit" class="form">
-      <div class="input-group">
-        <input v-model="user.email" type="text" class="form-group" placeholder="Email">
+    <div class="signup">
+      <h1>Sign Up</h1>
+      
+      <div class="google-signup">
+        <button @click="signupWithGoogle">Sign Up with Google <i class="fab fa-google"></i></button>
+        <p>Or Sign up with</p>
       </div>
 
-      <div class="input-group">
-        <input v-model="user.password" type="password" class="form-group" placeholder="Password">
+      <form @submit.prevent="onSubmit" class="form">
+        <div class="input-group">
+          <input v-model="user.email" type="text" class="form-group" placeholder="Email">
+        </div>
+
+        <div class="input-group">
+          <input v-model="user.password" type="password" class="form-group" placeholder="Password">
+        </div>
+
+        <div class="input-group">
+          <input v-model="confirmPassword" type="password" class="form-group" placeholder="Confirm Password">
+          <small class="confirmPassword">{{ passwordConfirm }}</small>
+        </div>
+
+        <button class="submit-btn" type="submit">Submit</button>
+      </form>
+
+      <div class="login-account">
+        <p>
+          Already have an account?
+          <router-link to="/login" class="login-link">Login</router-link>
+        </p>
       </div>
-
-      <div class="input-group">
-        <input v-model="confirmPassword" type="password" class="form-group" placeholder="Confirm Password">
-        <small class="confirmPassword">{{ passwordConfirm }}</small>
-      </div>
-
-      <button class="submit-btn" type="submit">Submit</button>
-    </form>
-
-    <div class="login-account">
-      <p>
-        Already have an account?
-        <router-link to="/login" class="login-link">Login</router-link>
-      </p>
     </div>
   </div>
 </template>
 
 <script>
+import Navbar from '../components/Navbar'
 import { mapActions, mapGetters } from 'vuex'
 import UIkit from 'uikit';
 
 export default {
   name: 'signup',
+  components: {
+    Navbar
+  },
   data() {
     return {
       user: {
