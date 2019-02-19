@@ -28,11 +28,21 @@
           </div>
 
           <div class="search-btn">
-            <el-button :loading="loading" @click="runSearch">Run Search</el-button>
+            <el-button type="primary" :loading="loading" @click="runSearch">Run Search</el-button>
           </div>
         </div>
 
-        <el-button class="owners" @click="$router.push('/admin/bfk/search')">Search Owners</el-button>
+        <div class="nav-buttons">  
+          <el-button type="primary" @click="$router.push('/admin/bfk/search')">
+            Find Customers
+          </el-button>  
+          <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+            Make Reservation
+          </el-button>
+          <el-button type="primary" @click="$router.push('/admin/bfk/add')">
+            Add Customer
+          </el-button>
+        </div>
       </div>
     </nav>
 
@@ -158,18 +168,7 @@ export default {
   }
 
   .search-btn button {
-    font-size: 1rem;
-    border: none;
-    background: #001B54; 
-    color: #fff;
     margin-left: 20px;
-  }
-
-  .owners {
-    font-size: 1rem;
-    border: none;
-    background: #001B54; 
-    color: #fff;
   }
 
   .owners:hover {

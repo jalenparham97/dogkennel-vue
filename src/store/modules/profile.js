@@ -11,7 +11,7 @@ const mutations = {
     state.profile = payload
   },
   setPetProfiles: (state, payload) => {
-    state.petProfiles.push(payload)
+    state.petProfiles = payload
   },
   resetProfile: state => {
     state.profile = null
@@ -36,27 +36,67 @@ const actions = {
       console.log(err)
     })
   },
-  addPetProfile: ({ rootState, commit }, payload) => {
+  addPetProfile: ({ rootState, dispatch }, payload) => {
     db.collection('pet-profiles').add({...payload, user_id: rootState.auth.user.user_id})
-    commit('setPetProfiles', {...payload, user_id: rootState.auth.user.user_id, toggle: false})
+    dispatch('getPetProfiles')
   },
   getPetProfiles: ({ rootState, commit }) => {
     db.collection('pet-profiles').where('user_id', '==', rootState.auth.user.user_id).get().then(snapShot => {
+      const petProfiles = []
       snapShot.docs.forEach(doc => {
-        commit('setPetProfiles', {...doc.data(), toggle: false})
+        petProfiles.push({...doc.data()})
       })
+      commit('setPetProfiles', petProfiles)
     }).catch(err => {
       console.log(err)
     })
   },
-  updateProfile: ({ rootState, commit }, payload) => {
-    db.collection('profils').where('user_id', '==', rootState.auth.user.user_id).get().then(snapShot => {
+  updateUserProfile({ commit }, profile) {
+    const profileRef = db.collection('profiles').where('user_id', '==', profile.user_id)
+    
+    profileRef.get().then(snapShot => {
       snapShot.docs.forEach(doc => {
-        console.log(doc.data())
+        doc.ref.update({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          phone: profile.phone,
+          address: profile.address,
+          clinic: profile.clinic,
+          vetEmail: profile.vetEmail,
+          vetAddress: profile.vetAddress,
+          vetPhone: profile.vetPhone,
+          vetFax: profile.vetFax  
+        })
+
+        const updatedProfile = profile
+        commit('setProfile', updatedProfile)
       })
-      // commit('setProfile', payload)
-      // router.push(`/profile/${rootState.auth.user.user_id}`)
-    }).catch(err => console.log(err))
+    })
+  },
+  updatePetProfile({ commit }, petProfile) {
+    // console.log(petProfile)
+    const petProfileRef = db.collection('pet-profiles').where('profile_id', '==', petProfile.profile_id)
+    // const petProfilesRef = db.collection('pet-profiles')
+
+    petProfileRef.get().then(snapShot => {
+      snapShot.docs.forEach(doc => {
+        doc.ref.update({
+          petName: petProfile.petName,
+          petAge: petProfile.petAge,
+          petBreed: petProfile.petBreed,
+          petMedice: petProfile.petMedice,
+          petDiet: petProfile.petDiet
+        })
+      })
+
+      // petProfilesRef.get().then(snapShot => {
+      //   const petProfiles = []
+      //   snapShot.docs.forEach(doc => {
+      //     petProfiles.push({...doc.data()})
+      //   })
+      //   commit('setPetProfiles', petProfiles)
+      // })
+    })  
   },
   resetState: ({ state, commit }) => {
     commit('resetProfile')

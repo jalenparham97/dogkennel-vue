@@ -14,6 +14,8 @@ import AdminPage from './views/admin/AdminPage.vue'
 import ReservationSearch from './views/admin/ReservationSearch.vue'
 import SelectedProfile from './views/admin/SelectedProfile.vue'
 import SearchOwners from './views/admin/SearchOwners.vue'
+import AddCustomer from './views/admin/AddCustomer.vue'
+import MakeReservation from './views/admin/MakeReservation.vue'
 
 Vue.use(Router)
 
@@ -90,6 +92,16 @@ export default new Router({
       path: '/admin/bfk/search',
       name: 'SearchOwners',
       component: SearchOwners
+    },
+    {
+      path: '/admin/bfk/add',
+      name: 'AddCustomer',
+      component: AddCustomer
+    },
+    {
+      path: '/admin/bfk/reservation',
+      name: 'MakeReservation',
+      component: MakeReservation
     },
   ]
 })

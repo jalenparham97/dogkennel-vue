@@ -3,12 +3,18 @@
     <h1 class="heading">Beekel Farms Kennel Admin Page</h1>
 
     <div class="options-btns">
-      <button class="res-search" @click="$router.push('/admin/bfk/reservations')">
+      <el-button type="primary" @click="$router.push('/admin/bfk/reservations')">
         Search Reservations
-      </button>
-      <button class="customer-search" @click="$router.push('/admin/bfk/search')">
+      </el-button>
+      <el-button type="primary" @click="$router.push('/admin/bfk/search')">
         Find Customers
-      </button>
+      </el-button>
+      <el-button type="primary" @click="$router.push('/admin/bfk/add')">
+        Add Customer
+      </el-button>
+      <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+        Make Reservation
+      </el-button>
     </div>
   </div>
 </template>
@@ -34,12 +40,6 @@ export default {
 
   .options-btns button {
     margin: 0px 40px;
-    cursor: pointer;
-    padding: 10px 20px;
-    background: #001B54;
-    color: #fff;
     font-size: 1.2rem;
-    border-radius: 5px;
-    outline: none;
   }
 </style>

@@ -6,7 +6,7 @@
       <div class="sidebar">
         <div class="heading">
           <h1 class="initials">{{ initials() }}</h1>
-          <h2 class="name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+          <h2 class="name">{{ userProfile.firstName }} {{ userProfile.lastName }}</h2>
         </div>
         
         <div class="side-navigation">
@@ -15,7 +15,7 @@
               <router-link to="/reservation" class="nav-link">Make a Reservation</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link">Edit Profile</a>
+              <a class="nav-link" @click="editProfileDialog = true">Edit Profile</a>
             </li>
             <li class="nav-item">
               <router-link to="" class="nav-link" @click="logout">Logout</router-link>
@@ -28,31 +28,38 @@
           <div class="container">
             <div class="contact-info">
               <h3>Contact Information</h3>
-              <p class="phone contact">Phone: {{ profile.phone }}</p>
-              <p class="email contact">Email: {{ profile.email }}</p>
-              <p class="address contact">Address: {{ profile.address }}</p>
+              <p class="phone contact">Phone: {{ userProfile.phone }}</p>
+              <p class="email contact">Email: {{ userProfile.email }}</p>
+              <p class="address contact">Address: {{ userProfile.address }}</p>
             </div>
 
             <div class="vet-info">
               <h3>Veterinarian Information</h3>
-              <p class="vet clinic">Clinic: {{ profile.clinic }}</p>
-              <p class="vet vet-phone">Phone: {{ profile.vetPhone }}</p>
-              <p class="vet vet-email">Email: {{ profile.vetEmail }}</p>
-              <p class="vet vet-address">Address: {{ profile.vetAddress }}</p>
+              <p class="vet clinic">Clinic: {{ userProfile.clinic }}</p>
+              <p class="vet vet-phone">Phone: {{ userProfile.vetPhone }}</p>
+              <p class="vet vet-email">Email: {{ userProfile.vetEmail }}</p>
+              <p class="vet vet-address">Address: {{ userProfile.vetAddress }}</p>
             </div>
           </div>
 
           <div class="pet-info">
-            <h3>Pet Profile(s)</h3>
+            <span class="title-profile">Pet Profile(s)</span>
+            <el-button type="primary" class="add-pet-btn" @click="openAddPet">Add Pet</el-button>
             <div v-for="pet in petProfiles" :key="pet.profile_id" class="pet-profile">
-              <div class="main-info">
-                <p class="pet pet-name">Name: {{ pet.petName }}</p>
-                <p class="pet pet-bread">Breed: {{ pet.petBreed }}</p>
-                <p class="pet pet-age">Age: {{ pet.petAge }}</p>
+              <div class="pet-info-container">
+                <div class="main-info">
+                  <p class="pet pet-name">Name: {{ pet.petName }}</p>
+                  <p class="pet pet-bread">Breed: {{ pet.petBreed }}</p>
+                  <p class="pet pet-age">Age: {{ pet.petAge }}</p>
+                </div>
+                <div class="other-info">
+                  <p class="pet-medicine">Medicine: {{ pet.petMedice }}</p>
+                  <p class="pet-diet">Diet: {{ pet.petDiet }}</p>
+                </div>
               </div>
-              <div class="other-info">
-                <p class="pet-toggle pet-medicine">Medicine: {{ pet.petMedice }}</p>
-                <p class="pet-toggle pet-diet">Diet: {{ pet.petDiet }}</p>
+
+              <div class="edit-pet-btn">
+                <el-button @click="openEditPet(pet)">Edit</el-button>
               </div>
             </div>
           </div>
@@ -75,6 +82,145 @@
           </ul>
         </div>
       </div>
+
+      <!-- EDIT PROFILE DIALOG -->
+      <el-dialog
+        :visible.sync="editProfileDialog"
+        width="90%">
+        <form>
+
+          <div class="user-info">
+
+            <h3 class="user-information">User Information</h3>
+
+            <el-input 
+              placeholder="First Name" 
+              v-model="updatedProfile.firstName">
+            </el-input>
+            <el-input 
+              placeholder="Last Name" 
+              v-model="updatedProfile.lastName">
+            </el-input>
+            <el-input 
+              placeholder="Phone" 
+              v-model="updatedProfile.phone">
+            </el-input>
+            <el-input 
+              placeholder="Email" 
+              v-model="updatedProfile.email">
+            </el-input>
+            <el-input 
+              placeholder="Address" 
+              v-model="updatedProfile.address">
+            </el-input>
+
+            <h3 class="vet-information">Vet Information</h3>
+
+            <el-input 
+              placeholder="Clinic Name" 
+              v-model="updatedProfile.clinic">
+            </el-input>
+              <el-input 
+              placeholder="Clinic Phone" 
+              v-model="updatedProfile.vetPhone">
+            </el-input>
+            <el-input 
+              placeholder="Clinic Address" 
+              v-model="updatedProfile.vetAddress">
+            </el-input>
+            <el-input 
+              placeholder="Clinic Email" 
+              v-model="updatedProfile.vetEmail">
+            </el-input>
+            <el-input 
+              placeholder="Clinic Fax" 
+              v-model="updatedProfile.vetFax">
+            </el-input>
+          </div>
+
+        </form>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editProfileDialog = false">Cancel</el-button>
+          <el-button type="primary" @click="updateProfile">Save</el-button>
+        </span>
+      </el-dialog>
+
+      <!-- ADD PET DIALOG -->
+      <el-dialog
+        :visible.sync="addPetDialog"
+        width="90%">
+
+    
+        <div>
+          <h2>New Pet</h2>
+
+          <label for="petName">Name</label>
+          <el-input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
+
+          <label for="petAge">Age</label>
+          <el-input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
+
+          <div class="pet-breed">
+            <label for="petBreed">Breed</label>
+            <el-autocomplete
+              class="inline-input"
+              v-model="petProfile.petBreed"
+              :fetch-suggestions="querySearch"
+              placeholder="Pet Breed"
+            ></el-autocomplete>
+          </div>
+
+          <label for="petMedicine">Medicine</label>
+          <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
+
+          <label for="petDiet">Dietary Restrictions</label>
+          <el-input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
+        </div>  
+        
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cancelAddPet">Cancel</el-button>
+          <el-button type="primary" @click="addPet">Add</el-button>
+        </span>
+      </el-dialog>
+
+      <!-- EDIT PET PROFILE DIALOG -->
+      <el-dialog
+        :visible.sync="editPetDialog"
+        width="90%">
+        
+        <div class="edit-pet">
+          <h2>Edit Pet</h2>
+
+          <label for="petName">Name</label>
+          <el-input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
+
+          <label for="petAge">Age</label>
+          <el-input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
+
+          <div class="pet-breed">
+            <label for="petBreed">Breed</label>
+            <el-autocomplete
+              class="inline-input"
+              v-model="petProfile.petBreed"
+              :fetch-suggestions="querySearch"
+              placeholder="Pet Breed"
+            ></el-autocomplete>
+          </div>
+
+          <label for="petMedicine">Medicine</label>
+          <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
+
+          <label for="petDiet">Dietary Restrictions</label>
+          <el-input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
+        </div>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editPetDialog = false">Cancel</el-button>
+          <el-button type="primary" @click="editPetProfile">Save</el-button>
+        </span>
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -83,6 +229,7 @@
 import Navbar from '../components/Navbar'
 import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
+import axios from 'axios'
  
 export default {
   name: 'profile',
@@ -91,16 +238,43 @@ export default {
   },
   data() {
     return {
-      more: 'More',
-      togglePetDiet: false,   
+      editProfileDialog: false,
+      addPetDialog: false,
+      editPetDialog: false,  
+      updatedProfile: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+        address: '',
+        clinic: '',
+        vetEmail: '',
+        vetAddress: '',
+        vetPhone: '',
+        vetFax: ''  
+      },
+      petProfile: {
+        petName: '',
+        petAge: '',
+        petBreed: '',
+        petMedice: '',
+        petDiet: ''
+      },
+      breeds: [],
     }
+  },
+  created() {
+    this.loadDogBreeds()
   },
   computed: {
     ...mapGetters('profile', ['profile', 'petProfiles']),
     ...mapGetters('reservation', ['reservations']),
+    userProfile() {
+      this.updatedProfile = this.profile
+      return this.updatedProfile
+    },
   },
   methods: {
-    ...mapActions('profile', ['getProfile']),
+    ...mapActions('profile', ['getProfile', 'updateUserProfile', 'addPetProfile', 'updatePetProfile']),
     ...mapActions('auth', ['logout']),
     ...mapActions('reservation', ['cancelReservation']),
     checkinDate(reservation) {
@@ -110,13 +284,70 @@ export default {
       return moment(reservation.dates.checkout_date).format('MMM Do YYYY')
     },
     initials() {
-      const firstInitial = this.profile.firstName.split('')
-      const lastInitial = this.profile.lastName.split('')
+      const firstInitial = this.userProfile.firstName.split('')
+      const lastInitial = this.userProfile.lastName.split('')
       return `${firstInitial[0]}${lastInitial[0]}`
     },
     cancel(id) {
       this.cancelReservation(id)
-    }
+    },
+    updateProfile() {
+      this.updateUserProfile(this.updatedProfile)
+      this.editProfileDialog = false
+    },
+    editPetProfile() {
+      this.updatePetProfile(this.petProfile)
+      this.editPetDialog = false
+    },
+    addPet() {
+      this.addPetProfile(this.petProfile)
+      this.addPetDialog = false
+    },
+    openEditPet(petProfile) {
+      this.editPetDialog = true
+      this.petProfile = petProfile
+      console.log(this.petProfile)
+    },
+    openAddPet() {
+      this.petProfile.petName =  ''
+      this.petProfile.petAge =  ''
+      this.petProfile.petBreed =  ''
+      this.petProfile.petMedice =  ''
+      this.petProfile.petDiet =  ''
+      this.addPetDialog = true
+    },
+    cancelAddPet() {
+      this.petProfile.petName =  ''
+      this.petProfile.petAge =  ''
+      this.petProfile.petBreed =  ''
+      this.petProfile.petMedice =  ''
+      this.petProfile.petDiet =  ''
+      this.addPetDialog = false
+    },
+    async loadDogBreeds() {
+      const response = await axios({
+        method:'get',
+        url:'https://api.TheDogAPI.com/v1/breeds',
+        headers: {'x-api-key': '147fd97a-419d-4fe0-90be-ee6c0b83cbe6'}
+      })
+
+      const breeds = []
+      response.data.forEach(breed => {
+        breeds.push({ 'value': `${breed.name.toUpperCase()}`, 'id': `${breed.id}` })
+      })
+      this.breeds = breeds 
+    },
+    querySearch(queryString, cb) {
+      const breeds = this.breeds
+      const results = queryString ? breeds.filter(this.createFilter(queryString)) : breeds;
+      // call callback function to return suggestions
+      cb(results)
+    },
+    createFilter(queryString) {
+      return (breed) => {
+        return (breed.value.toUpperCase().indexOf(queryString.toUpperCase()) === 0);
+      }
+    },
   }
 }
 </script>
@@ -162,15 +393,34 @@ export default {
 
 .pet-profile {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   background: #C2B59B;
   padding: 10px;
   color: #001B54;
   border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.pet-profile-title {
+  display: flex;
+  margin-bottom: 20px;
+
+  & button {
+    margin-left: 10px;
+  }
 }
 
 .pet-info {
   width: 100%;
+
+  & span {
+    font-size: 1.5rem;
+    margin-right: 10px;
+  }
+
+  & .add-pet-btn {
+    margin-bottom: 20px;
+  }
 }
 
 .pet {
@@ -178,17 +428,27 @@ export default {
   color: #001B54;
 }
 
-.pet-toggle {
+.pet-breed {
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-diet, .pet-medicine {
   margin: 0px;
 }
 
-.more {
-  margin: 0px;
-  cursor: pointer;
-}
+.edit-pet-btn {
 
-.more:hover {
-  text-decoration: underline;
+  & button {
+    background: #4CB544;
+    color: #fff;
+    border: 1px solid #4CB544;
+
+    &:hover {
+      background: #4f8f4a;
+      border: 1px solid #4f8f4a;
+    }
+  }
 }
 
 /* RESERVATION SECTION */
@@ -330,6 +590,12 @@ export default {
 
 @media only screen and (max-width: 700px) {
   .container {
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .pet-profile {
     flex-direction: column;
   }
 }

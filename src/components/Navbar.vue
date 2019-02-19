@@ -14,7 +14,7 @@
           <li class="nav-item link"><router-link class="nav-link" to="/">Home</router-link></li>
           <li class="nav-item link"><router-link class="nav-link" to="/about">About Us</router-link></li>
           <li class="nav-item link"><router-link class="nav-link" to="/services">Services</router-link></li>
-          <li class="nav-item link" @click="authCheck">Reservation</li>
+          <li class="nav-item link" @click="$router.push('/reservation')">Reservation</li>
           <li v-for="item in menu" :key="item.name" class="nav-item link"><router-link :to="item.to" class="nav-link">{{ item.name }}</router-link></li>
           <li @click="onLogout" v-if="isLoggedIn" class="nav-item link"><router-link class="nav-link" to="/login">Logout</router-link></li>
           <li class="nav-item menu"><a class="menu-btn" href="#sidebar" uk-toggle><i class="fas fa-bars"></i></a></li>
@@ -73,13 +73,6 @@ export default {
         this.$router.push('/login')
       }
     },
-    authCheck() {
-      if (this.user) {
-        this.$router.push('/reservation')
-      } else {
-        this.$router.push('/signup')
-      }
-    }
   }
 }
 </script>

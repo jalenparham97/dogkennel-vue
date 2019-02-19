@@ -6,6 +6,11 @@
       <div class="logo-img">
         <img src="../assets/logo.png" alt="">
       </div>
+
+      <div class="action-btns">
+        <el-button type="primary" @click="$router.push('/reservation')">Check Availability</el-button>
+        <el-button type="primary" @click="$router.push('/services')">Learn More</el-button>
+      </div>
     </header>
 
     <main>
@@ -125,6 +130,16 @@ export default {
 
 .logo-img img {
   width: 100%;
+}
+
+.action-btns {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+
+  & button {
+    font-size: 1.2rem;
+  }
 }
 
 /* INTRO SECTION */

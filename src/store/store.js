@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import firebase from '@/db/firebase.config'
 import router from '@/router'
 import moment from 'moment'
+import uuid from 'uuid'
 import db from '@/db/db'
 import auth from '@/store/modules/auth'
 import profile from '@/store/modules/profile'
@@ -187,6 +188,8 @@ export default new Vuex.Store({
         dispatch('getAllReservations')
       })
     },
+
+    // UPDATE FUNCTIONS
     updateProfile({ commit }, profile) {
       const profileRef = db.collection('profiles').where('user_id', '==', profile.user_id)
       
@@ -208,7 +211,33 @@ export default new Vuex.Store({
           commit('setSelectedProfile', updatedProfile)
         })
       })
-    }
+    },
+
+    // ADD CUSTOMERS
+    signUpEmail({ dispatch }, payload) {
+      firebase.auth().createUserWithEmailAndPassword(payload.profile.email, payload.profile.password).then(user => {
+        const newUser = {
+          user_id: user.user.uid,
+          email: user.user.email,
+        }
+        db.collection('users').doc(newUser.user_id).set(newUser)
+        
+        delete payload.profile.password
+        const newUserProfile = {...payload.profile, user_id: newUser.user_id}
+        const petProfile = {...payload.petProfile, user_id: newUser.user_id}
+        dispatch('saveProfile', newUserProfile)
+        dispatch('addPetProfile', petProfile)
+        router.push('/admin/bfk/search')  
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    saveProfile: (_, payload) => {
+      db.collection('profiles').add({...payload})
+    },
+    addPetProfile: (_, payload) => {
+      db.collection('pet-profiles').add({...payload, profile_id: uuid()})
+    },
   },
 
   getters: {

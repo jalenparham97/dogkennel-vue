@@ -9,7 +9,15 @@
           v-model="query">
         </el-input>
 
-        <el-button @click="$router.push('/admin/bfk/reservations')">Search Reservations</el-button>
+        <el-button type="primary" @click="$router.push('/admin/bfk/reservations')">
+          Search Reservations
+        </el-button>
+        <el-button type="primary" @click="$router.push('/admin/bfk/add')">
+          Add Customer
+        </el-button>  
+        <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+          Make Reservation
+        </el-button>
       </div>
     </div>
 
@@ -79,12 +87,7 @@ export default {
 .el-input {
   margin-right: 10px;
   width: 90%;
-}
-
-.search-input button{
-  color: #fff;
-  background: #001B54;
-  border: none;
+  font-size: 1rem;
 }
 
 .owners {
