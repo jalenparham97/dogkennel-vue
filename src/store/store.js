@@ -170,7 +170,7 @@ export default new Vuex.Store({
       })
     },
     getAllUsers: ({ commit }) => {
-      const usersRef = db.collection('profiles')
+      const usersRef = db.collection('profiles').orderBy('lastName', 'asc')
 
       const users = []
       usersRef.get().then(snapShot => {
