@@ -1,6 +1,23 @@
 <template>
   <div class="container-profile">
     <div class="profile">
+      <div class="nav">
+        <div class="nav-items">
+          <el-button type="primary" @click="$router.push('/admin/bfk/reservations')">
+            Search Reservations
+          </el-button>
+          <el-button type="primary" @click="$router.push('/admin/bfk/search')">
+            Find Customers
+          </el-button>  
+          <el-button type="primary" @click="$router.push('/admin/bfk/add')">
+            Add Customer
+          </el-button>
+          <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+            Make Reservation
+          </el-button>
+        </div>
+      </div>
+
      
       <div class="profile-container">
         <div class="profile-info">
@@ -179,7 +196,18 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .profile-container {
+// NAVIGATION
+.nav {
+  padding: 20px;
+  background: #C2B59B;
+
+  & .nav-items {
+    display: flex;
+    justify-content: space-around;
+  }
+}
+
+.profile-container {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;

@@ -73,10 +73,8 @@ const actions = {
       })
     })
   },
-  updatePetProfile({ commit }, petProfile) {
-    // console.log(petProfile)
+  updatePetProfile(_, petProfile) {
     const petProfileRef = db.collection('pet-profiles').where('profile_id', '==', petProfile.profile_id)
-    // const petProfilesRef = db.collection('pet-profiles')
 
     petProfileRef.get().then(snapShot => {
       snapShot.docs.forEach(doc => {
@@ -88,14 +86,6 @@ const actions = {
           petDiet: petProfile.petDiet
         })
       })
-
-      // petProfilesRef.get().then(snapShot => {
-      //   const petProfiles = []
-      //   snapShot.docs.forEach(doc => {
-      //     petProfiles.push({...doc.data()})
-      //   })
-      //   commit('setPetProfiles', petProfiles)
-      // })
     })  
   },
   resetState: ({ state, commit }) => {
