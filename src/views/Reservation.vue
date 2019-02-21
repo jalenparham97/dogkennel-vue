@@ -59,7 +59,7 @@
         </div>
 
         <div class="check-btn">
-          <el-button type="primary">Check Availability</el-button>
+          <el-button type="primary" @click="checkAvailability(reservation)">Check Availability</el-button>
         </div>
       </div>
     </div>
@@ -89,6 +89,7 @@
 </template>
 
 <script>
+import db from '../db/db'
 import Navbar from '../components/Navbar'
 import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
@@ -108,8 +109,11 @@ export default {
         checkin_time: '',
         checkout_time: '',
         numOfDogs: 1,
-        numOfKennels: 1
+        numOfKennels: 2
       },
+      isAvailable: null,
+      notAvailable: null,
+      showAvailability: false
     }
   },
   async created() {
@@ -134,24 +138,21 @@ export default {
     }
   },
   methods: {
-    ...mapActions('reservation', ['saveReservation', 'getKennels', 'checkReservationsDate']),
+    ...mapActions('reservation', ['saveReservation', 'getKennels', 'checkReservationsDate', 'isAvailableMethod']),
     bookReservation() {
-      if (this.formIsValid) {
+      console.log(this.reservation.numOfDogs, this.reservation.numOfKennels)
+      // if (this.formIsValid) {
         this.saveReservation({ 
-          dates: {
-            checkin_date: moment(this.reservation.checkin_date).valueOf(),
-            checkout_date: moment(this.reservation.checkout_date).valueOf(),
-          },
+          checkin_date: moment(this.reservation.checkin_date).valueOf(),
+          checkout_date: moment(this.reservation.checkout_date).valueOf(),
           checkin_time: this.reservation.checkin_time,
           checkout_time: this.reservation.checkout_time,  
-          pets_reserved: this.reservation.pets_reserved,
-          selected_kennel: this.reservation.selectedRun,
+          numOfDogs: this.reservation.numOfDogs,
+          numOfKennels: this.reservation.numOfKennels,
           owner: `${this.profile.firstName} ${this.profile.lastName}`,
-          id: uuid()
+          res_id: uuid()
         })
-      } else {
-        console.log('Error')
-      }
+      // }
     },
     addPetProfile(pet) {
       this.reservation.pets_reserved.push({ pet_name: pet.petName, profile_id: pet.profile_id })
@@ -177,8 +178,58 @@ export default {
     },
     petsAdded() {
       this.reservation.pets_reserved !== [] ? true : false 
-    }
-  }
+    },
+    isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
+      if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate))) {
+        return false
+      } else {
+        return true
+      }
+    },
+    async checkAvailability(res) {
+      this.isAvailableMethod(true)
+      this.showAvailability = true
+      const reservationsRef = db.collection('reservations')
+      const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
+      let reservedKennels;
+
+      const availableKennels = []
+      await kennelsRef.get().then(snapShot => {
+        snapShot.docs.forEach(doc => {
+          availableKennels.push({...doc.data()})
+        })
+
+        if (availableKennels.length < res.numOfKennels) {
+          commit('setResError', 'Sorry there are not enough availible kennels. Please choose another date.')
+        } else {
+          const restOfArray = availableKennels.length - res.numOfKennels
+          availableKennels.splice(res.numOfKennels, restOfArray)
+          reservedKennels = availableKennels
+          
+          const reservation = {...res, creator_id: this.user.user_id, reservedKennels}
+          
+          reservationsRef.get().then(snapShot => {
+            snapShot.docs.forEach(doc => {
+              const startDate = moment(reservation.checkin_date).valueOf()
+              const endDate = moment(reservation.checkout_date).valueOf()
+              const resKennels = reservation.reservedKennels
+              const checkinDate = doc.data().checkin_date
+              const checkoutDate = doc.data().checkout_date
+              const docReskennels = doc.data().reservedKennels
+
+              docReskennels.forEach(kennel => {
+                resKennels.forEach(resKennel => {
+                  if ((kennel.kennel_name === resKennel.kennel_name) && !this.isAvailible(startDate, checkinDate, endDate, checkoutDate)) {
+                    return this.isAvailableMethod(false)   
+                  }
+                })
+              })
+            })
+          })
+        }
+      })
+    },
+  },
 }
 </script>
 

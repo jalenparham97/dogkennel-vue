@@ -61,8 +61,8 @@ new Vue({
         }
     }).then(() => {
       const today = new Date().getDate()
-      if (today !== this.currentDay) {
-        this.checkReservationsDate()
+      if (today !== this.currentDay) { 
+        this.updateKennelStatus()
       }
     })
   },
@@ -74,7 +74,7 @@ new Vue({
   methods: {
     ...mapActions('auth', ['autoLogIn']),
     ...mapActions('profile', ['getProfile', 'getPetProfiles']),
-    ...mapActions('reservation', ['getReservations', 'checkReservationsDate']),
+    ...mapActions('reservation', ['getReservations', 'updateKennelStatus']),
 
     async saveCurrentDay() {
       const daysRef = db.collection('days')
