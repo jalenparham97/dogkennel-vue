@@ -5,7 +5,7 @@ import store from './store/store'
 import firebase from 'firebase'
 import db from './db/db'
 import VCalendar from 'v-calendar'
-import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog, Option, Button, Input, InputNumber, Autocomplete, } from 'element-ui'
+import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog, Option, Button, Input, InputNumber, Autocomplete, Loading} from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -33,6 +33,7 @@ Vue.use(Button)
 Vue.use(Input)
 Vue.use(InputNumber)
 Vue.use(Autocomplete)
+Vue.use(Loading)
 
 
 new Vue({
@@ -47,41 +48,11 @@ new Vue({
         this.getReservations()
       }
     })
-
-    const daysRef = db.collection('days')
-
-    await daysRef.get().then(snapShot => {
-      if (!snapShot.empty) {
-          snapShot.forEach(doc => {
-            doc.ref.update({ currentDay: new Date().getDate() })
-            this.$store.commit('setCurrentDay', new Date().getDate())
-          })
-        } else {
-          this.saveCurrentDay()
-        }
-    }).then(() => {
-      const today = new Date().getDate()
-      if (today !== this.currentDay) { 
-        this.updateKennelStatus()
-      }
-    })
-  },
-  computed: {
-    currentDay() {
-      return this.$store.getters.currentDay
-    }
   },
   methods: {
     ...mapActions('auth', ['autoLogIn']),
     ...mapActions('profile', ['getProfile', 'getPetProfiles']),
-    ...mapActions('reservation', ['getReservations', 'updateKennelStatus']),
-
-    async saveCurrentDay() {
-      const daysRef = db.collection('days')
-
-      await daysRef.add({ currentDay: new Date().getDate() })
-      this.$store.commit('setCurrentDay', new Date().getDate())
-    }
+    ...mapActions('reservation', ['getReservations']),
   },
   render: h => h(App)
 }).$mount('#app')

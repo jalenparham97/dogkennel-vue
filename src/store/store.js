@@ -65,24 +65,12 @@ export default new Vuex.Store({
       })
     },
     getAllReservations({ commit }) {
-      const reservationsRef = db.collection('reservations').orderBy('checkin_time', 'asc')
+      const reservationsRef = db.collection('reservations').orderBy('checkin_date', 'asc')
 
       const allReservations = []
       reservationsRef.get().then(snapShot => {
         snapShot.docs.forEach(doc => {
-          allReservations.push({
-            dates: {
-              checkin_date: moment(doc.data().dates.checkin_date).format('MMM Do YYYY'),
-              checkout_date: moment(doc.data().dates.checkout_date).format('MMM Do YYYY'),
-            },
-            checkin_time: doc.data().checkin_time,
-            checkout_time: doc.data().checkout_time,
-            creator_id: doc.data().creator_id,
-            owner: doc.data().owner,
-            pets_reserved: doc.data().pets_reserved,
-            selected_kennel: doc.data().selected_kennel,
-            id: doc.data().id
-          })
+          allReservations.push(doc.data())
         })
 
         commit('setAllReservations', allReservations)
@@ -90,47 +78,23 @@ export default new Vuex.Store({
     },
     runReservationSearch({ commit }, query) {
       if (query.option === 'Arrival') {
-        const reservationsRef = db.collection('reservations').where('dates.checkin_date', '>=', query.date1).where('dates.checkin_date', '<=', query.date2).orderBy('dates.checkin_date', 'asc')
+        const reservationsRef = db.collection('reservations').where('checkin_date', '>=', query.date1).where('checkin_date', '<=', query.date2).orderBy('checkin_date', 'asc')
         commit('setLoading', true)
         const allReservations = []
         reservationsRef.get().then(snapShot => {
           snapShot.docs.forEach(doc => {
-            allReservations.push({
-              dates: {
-                checkin_date: moment(doc.data().dates.checkin_date).format('MMM Do YYYY'),
-                checkout_date: moment(doc.data().dates.checkout_date).format('MMM Do YYYY'),
-              },
-              checkin_time: doc.data().checkin_time,
-              checkout_time: doc.data().checkout_time,
-              creator_id: doc.data().creator_id,
-              owner: doc.data().owner,
-              pets_reserved: doc.data().pets_reserved,
-              selected_kennel: doc.data().selected_kennel,
-              id: doc.data().id
-            })
+            allReservations.push(doc.data())
+            commit('setAllReservations', allReservations)
+            commit('setLoading', false)
           })
-          commit('setAllReservations', allReservations)
-          commit('setLoading', false)
-        })
+        })  
       } else {
         const reservationsRef = db.collection('reservations').where('dates.checkout_date', '>=', query.date1).where('dates.checkout_date', '<=', query.date2).orderBy('dates.checkout_date', 'asc')
         commit('setLoading', true)
         const allReservations = []
         reservationsRef.get().then(snapShot => {
           snapShot.docs.forEach(doc => {
-            allReservations.push({
-              dates: {
-                checkin_date: moment(doc.data().dates.checkin_date).format('MMM Do YYYY'),
-                checkout_date: moment(doc.data().dates.checkout_date).format('MMM Do YYYY'),
-              },
-              checkin_time: doc.data().checkin_time,
-              checkout_time: doc.data().checkout_time,
-              creator_id: doc.data().creator_id,
-              owner: doc.data().owner,
-              pets_reserved: doc.data().pets_reserved,
-              selected_kennel: doc.data().selected_kennel,
-              id: doc.data().id
-            })
+            allReservations.push(doc.data())
           })
           commit('setAllReservations', allReservations)
           commit('setLoading', false)
@@ -146,7 +110,6 @@ export default new Vuex.Store({
         })
         dispatch('getPetProfiles', id)
         dispatch('getSelectedProfileReservations', id)
-        router.push(`/admin/bfk/profile/${id}`)
       })
     },
     getPetProfiles: ({ commit }, id) => {
@@ -180,6 +143,15 @@ export default new Vuex.Store({
         commit('setAllUsers', users)
       })
     },
+
+    // RESERVATION FUNCTIONS
+    async saveUserReservation({ dispatch }, reservation) {
+      const reservationsRef = db.collection('reservations')
+  
+      await reservationsRef.add(reservation)
+      await dispatch('getAllReservations')
+      router.push('/admin/bfk/reservations') 
+    },   
     cancelReservation({ dispatch }, id) {
       db.collection('reservations').where('id', '==', id).get().then(snapShot => {
         snapShot.docs.forEach(doc => {
@@ -228,8 +200,6 @@ export default new Vuex.Store({
         dispatch('saveProfile', newUserProfile)
         dispatch('addPetProfile', petProfile)
         router.push('/admin/bfk/search')  
-      }).catch(error => {
-        console.log(error)
       })
     },
     saveProfile: (_, payload) => {

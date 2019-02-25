@@ -1,12 +1,15 @@
 import router from '@/router'
 import moment from 'moment'
 import db from '@/db/db'
+import { stat } from 'fs';
 
 const state = {
   reservations: [],
   kennels: [],
   resError: '',
-  isAvailable: true
+  isAvailable: true,
+  selectedReservation: null,
+  noMoreKennels: false
 }
 
 const mutations = {
@@ -27,6 +30,12 @@ const mutations = {
   },
   setIsAvailable: (state, isAvailable) => {
     state.isAvailable = isAvailable
+  },
+  setSelectedReservation: (state, reservation) => {
+    state.selectedReservation = reservation
+  },
+  setNoMoreKennels: (state, boolean) => {
+    state.noMoreKennels = boolean
   }
 }
 
@@ -34,30 +43,17 @@ const actions = {
   isAvailableMethod({ commit }, isAvailable) {
     commit('setIsAvailable', isAvailable)
   },
-  saveReservation: async ({ rootState, commit }, payload) => {
-    const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
-
-    let reservedKennels;
-
-    const availableKennels = []
-    await kennelsRef.get().then(snapShot => {
-      snapShot.docs.forEach(doc => {
-        availableKennels.push({...doc.data()})
-      })
-
-      if (availableKennels.length < payload.numOfKennels) {
-        commit('setResError', 'Sorry there are not enough availible kennels. Please choose another date.')
-      } else {
-        const restOfArray = availableKennels.length - payload.numOfKennels
-        availableKennels.splice(payload.numOfKennels, restOfArray)
-        reservedKennels = availableKennels
-        
-        const reservation = {...payload, creator_id: rootState.auth.user.user_id, reservedKennels}
-        reservationsRef.add(reservation)
-  
-        commit('addReservations', reservation)
-      }
-    })
+  noMoreKennels({ commit }, boolean) {
+    commit('setNoMoreKennels', boolean)
+  },
+  selectedReservation({ commit }, reservation) {
+    commit('setSelectedReservation', reservation)
+  },
+  saveReservation: async ({ commit }, reservation) => {
+    const reservationsRef = db.collection('reservations')
+    await reservationsRef.add(reservation)
+    commit('addReservations', reservation)
+    router.push(`/profile/${reservation.creator_id}`)
   },
   getReservations: ({ rootState, commit }) => {
     db.collection('reservations').where('creator_id', '==', rootState.auth.user.user_id).get().then(snapShot => {
@@ -71,8 +67,8 @@ const actions = {
   resetState: ({ commit }) => {
     commit('reset')
   },
-  cancelReservation: ({ dispatch }, payload) => {
-    db.collection('reservations').where('id', '==', payload).get().then(snapShot => {
+  cancelReservation: ({ dispatch }, id) => {
+    db.collection('reservations').where('res_id', '==', id).get().then(snapShot => {
       snapShot.docs.forEach(doc => {
         doc.ref.delete()
       })
@@ -106,7 +102,6 @@ const actions = {
       if (resDate <= now) {
         kennels.docs.forEach(doc => {
           res.reservedKennels.forEach(kennel => {
-            console.log(kennel)
             if (kennel.kennel_name === doc.data().kennel_name) {
               doc.ref.update({ status: 'unavailable' })
             }
@@ -119,8 +114,10 @@ const actions = {
 
 const getters = {
   reservations: state =>  state.reservations,
-  kennels: state => state.kennels
-
+  kennels: state => state.kennels,
+  isAvailable: state => state.isAvailable,
+  newUserReservation: state => state.selectedReservation,
+  noMoreKennels: state => state.noMoreKennels
 }
 
 export default {

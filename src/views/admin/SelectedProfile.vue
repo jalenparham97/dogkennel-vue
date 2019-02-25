@@ -12,7 +12,7 @@
           <el-button type="primary" @click="$router.push('/admin/bfk/add')">
             Add Customer
           </el-button>
-          <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+          <el-button type="primary" @click="$router.push('/admin/bfk/search')">
             Make Reservation
           </el-button>
         </div>
@@ -131,10 +131,10 @@
               <div class="reservation-info">
                 <span>Check In: {{ checkinDate(reservation) }}, {{ reservation.checkin_time }}</span> 
                 <span>Check Out: {{ checkoutDate(reservation) }}, {{ reservation.checkout_time }}</span>
-                <span>Pets Reserved: <span v-for="pet in reservation.pets_reserved" :key="pet.profile_id">{{ pet.pet_name }}</span></span>
+                <span>Pets Reserved: {{ reservation.numOfDogs }}</span>
               </div>
               <div class="options-btns">
-                <button class="cancel" @click="cancel(reservation.id)">Cancel</button>
+                <button class="cancel" @click="cancel(reservation.res_id)">Cancel</button>
               </div>
             </li>
           </ul>
@@ -181,14 +181,13 @@ export default {
   },
   methods: {
     checkinDate(reservation) {
-      return moment(reservation.dates.checkin_date).format('MMM Do YYYY')
+      return moment(reservation.checkin_date).format('MMM Do YYYY')
     },
     checkoutDate(reservation) {
-      return moment(reservation.dates.checkout_date).format('MMM Do YYYY')
+      return moment(reservation.checkout_date).format('MMM Do YYYY')
     },
     updateProfile() {
       this.$store.dispatch('updateProfile', this.profile)
-      console.log(this.profile)
       this.dialogVisible = false
     }
   }

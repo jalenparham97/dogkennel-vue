@@ -59,7 +59,7 @@
         </div>
 
         <div class="check-btn">
-          <el-button type="primary" @click="checkAvailability(reservation)">Check Availability</el-button>
+          <el-button type="primary" @click="check()">Check Availability</el-button>
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ import Navbar from '../components/Navbar'
 import { mapGetters, mapActions } from 'vuex'
 import moment from 'moment'
 import uuid from 'uuid'
-import UIkit from 'uikit';
+import { Notification } from 'element-ui';
 
 export default {
   name: 'reservation',
@@ -109,20 +109,29 @@ export default {
         checkin_time: '',
         checkout_time: '',
         numOfDogs: 1,
-        numOfKennels: 2
+        numOfKennels: 1
       },
-      isAvailable: null,
-      notAvailable: null,
-      showAvailability: false
+      availableKennels: [],
+      availableReservations: []
     }
   },
   async created() {
-    await this.getKennels()
+    const daysRef = db.collection('days')
+
+    await daysRef.get().then(snapShot => {
+      if (!snapShot.empty) {
+          snapShot.forEach(doc => {
+            doc.ref.update({ currentDay: new Date().getDate() })
+            this.$store.commit('setCurrentDay', new Date().getDate())
+          })
+        }
+    }).then(() => {
+      this.updateKennelStatus()
+    })
   },
   computed: {
     ...mapGetters('auth', ['user']),
-    ...mapGetters('profile', ['petProfiles', 'profile']),
-    ...mapGetters('reservation', ['kennels']),
+    ...mapGetters('profile', ['profile']),
     checkinDate() {
       return moment(this.reservation.checkin_date).format('MMM Do YYYY')
     },
@@ -130,104 +139,111 @@ export default {
       return moment(this.reservation.checkout_date).format('MMM Do YYYY')
     },
     formIsValid() {
-      if (this.reservation.checkin_date === '' || this.reservation.checkout_date === '' || this.reservation.pets_reserved === [] || this.reservation.checkin_time === '' || this.reservation.checkout_time === '') {
+      if (this.reservation.checkin_date === '' || this.reservation.checkout_date === '' || this.reservation.checkin_time === '' || this.reservation.checkout_time === '') {
         return false
       } else {
         return true
+      }
+    },
+    newReservation() {
+      return {
+        checkin_date: moment(this.reservation.checkin_date).valueOf(),
+        checkout_date: moment(this.reservation.checkout_date).valueOf(),
+        checkin_time: this.reservation.checkin_time,
+        checkout_time: this.reservation.checkout_time,
+        creator_id: this.user.user_id,
+        owner: `${this.profile.firstName.trim()} ${this.profile.lastName.trim()}`,
+        res_id: uuid(),
+        numOfDogs: this.reservation.numOfDogs,
+        numOfKennels: this.reservation.numOfKennels
       }
     }
   },
   methods: {
-    ...mapActions('reservation', ['saveReservation', 'getKennels', 'checkReservationsDate', 'isAvailableMethod']),
-    bookReservation() {
-      console.log(this.reservation.numOfDogs, this.reservation.numOfKennels)
-      // if (this.formIsValid) {
-        this.saveReservation({ 
-          checkin_date: moment(this.reservation.checkin_date).valueOf(),
-          checkout_date: moment(this.reservation.checkout_date).valueOf(),
-          checkin_time: this.reservation.checkin_time,
-          checkout_time: this.reservation.checkout_time,  
-          numOfDogs: this.reservation.numOfDogs,
-          numOfKennels: this.reservation.numOfKennels,
-          owner: `${this.profile.firstName} ${this.profile.lastName}`,
-          res_id: uuid()
-        })
-      // }
-    },
-    addPetProfile(pet) {
-      this.reservation.pets_reserved.push({ pet_name: pet.petName, profile_id: pet.profile_id })
-      UIkit.notification({
-        message: 'Profile Added!',
-        status: 'success',
-        pos: 'top-center',
-        timeout: 4000
-      });
-    },
-    togglePreview() {
-      this.showPreview = !this.showPreview
-    },
-    selectRun(kennelName) {
-      this.reservation.selectedRun = kennelName
-    },
-    cancelDialog() {
-      this.reservation.selectedRun = '',
-      this.dialogVisible = false
-    },
-    deleteProfile(index) {
-      this.reservation.pets_reserved.splice(index, 1)
-    },
-    petsAdded() {
-      this.reservation.pets_reserved !== [] ? true : false 
-    },
+    ...mapActions('reservation', ['isAvailableMethod', 'selectedReservation', 'noMoreKennels', 'updateKennelStatus']),
     isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
-      if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate))) {
+      if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate)) || (startDate <= checkinDate && endDate >= checkoutDate)) {
         return false
       } else {
         return true
       }
     },
-    async checkAvailability(res) {
-      this.isAvailableMethod(true)
-      this.showAvailability = true
+    async check() {
       const reservationsRef = db.collection('reservations')
       const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
       let reservedKennels;
 
-      const availableKennels = []
-      await kennelsRef.get().then(snapShot => {
-        snapShot.docs.forEach(doc => {
-          availableKennels.push({...doc.data()})
+      if (!this.formIsValid) {
+        Notification.error({
+          title: 'Error',
+          message: 'Please pick dates and time',
+          duration: 4000
         })
+      } else {
+        if (this.reservation.numOfDogs < this.reservation.numOfKennels) {
+          Notification.error({
+            title: 'Error',
+            message: 'The number of kennels you select cannot be more than the number of dogs you reserve',
+            duration: 4000
+          })
+          return
+        } else if (this.calculateTotalPrice() < 0) {
+          Notification.error({
+            title: 'Error',
+            message: 'Please take a look at your dates. They may be out of order.',
+            duration: 4000
+          })
+          return
+        }
 
-        if (availableKennels.length < res.numOfKennels) {
-          commit('setResError', 'Sorry there are not enough availible kennels. Please choose another date.')
-        } else {
-          const restOfArray = availableKennels.length - res.numOfKennels
-          availableKennels.splice(res.numOfKennels, restOfArray)
-          reservedKennels = availableKennels
-          
-          const reservation = {...res, creator_id: this.user.user_id, reservedKennels}
-          
+        this.isAvailableMethod(true)
+        this.noMoreKennels(false)
+        await kennelsRef.get().then(snapShot => {
+          snapShot.docs.forEach(doc => {
+            this.availableKennels.push(doc.data())
+          })
+
+          if (this.availableKennels.length < this.reservation.numOfKennels) {
+            this.noMoreKennels(true)
+            this.$router.push('/reservation/available')
+            return
+          }
+  
+          this.isAvailableMethod(true)
+          const restOfArray = this.availableKennels.length - this.reservation.numOfKennels
+          this.availableKennels.splice(this.reservation.numOfKennels, restOfArray)
+          reservedKennels = this.availableKennels
+
+          const reservation = {...this.newReservation, reservedKennels}
+          this.selectedReservation(reservation)
+
           reservationsRef.get().then(snapShot => {
-            snapShot.docs.forEach(doc => {
-              const startDate = moment(reservation.checkin_date).valueOf()
-              const endDate = moment(reservation.checkout_date).valueOf()
-              const resKennels = reservation.reservedKennels
-              const checkinDate = doc.data().checkin_date
-              const checkoutDate = doc.data().checkout_date
-              const docReskennels = doc.data().reservedKennels
+            if (snapShot.empty) {
+              this.isAvailableMethod(true)
+              this.selectedReservation(reservation)
+              this.$router.push('/reservation/available')
+              return
+            }
+            const startDate = moment(this.reservation.checkin_date).valueOf()
+            const endDate = moment(this.reservation.checkout_date).valueOf()
 
-              docReskennels.forEach(kennel => {
-                resKennels.forEach(resKennel => {
-                  if ((kennel.kennel_name === resKennel.kennel_name) && !this.isAvailible(startDate, checkinDate, endDate, checkoutDate)) {
-                    return this.isAvailableMethod(false)   
-                  }
-                })
-              })
+            snapShot.docs.forEach(doc => {
+              this.availableReservations.push(doc.data())
+            })
+            this.availableReservations.forEach(res => {
+              const checkinDate = res.checkin_date
+              const checkoutDate = res.checkout_date
+
+              if (!this.isAvailible(startDate, checkinDate, endDate, checkoutDate) && (reservation.reservedKennels[0].kennel_name === res.reservedKennels[0].kennel_name)) {
+                this.isAvailableMethod(false)
+                this.$router.push('/reservation/available')
+              } else {
+                this.$router.push('/reservation/available')
+              }
             })
           })
-        }
-      })
+        })
+      }
     },
   },
 }

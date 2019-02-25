@@ -15,9 +15,6 @@
         <el-button type="primary" @click="$router.push('/admin/bfk/add')">
           Add Customer
         </el-button>  
-        <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
-          Make Reservation
-        </el-button>
       </div>
     </div>
 
@@ -41,6 +38,7 @@
        </div>
        <div class="actions">
          <el-button class="select" @click="selectProfile(owner.user_id)">Select</el-button>
+         <el-button class="select" @click="makeReservation(owner.user_id)">Make Reservation</el-button>
        </div>
       </div>
     </div>
@@ -69,6 +67,11 @@ export default {
   methods: { 
     selectProfile(id) {
       this.$store.dispatch('selectProfile', id)
+      this.$router.push(`/admin/bfk/profile/${id}`)
+    },
+    makeReservation(id) {
+      this.$store.dispatch('selectProfile', id)
+      this.$router.push(`/admin/bfk/make/reservation/${id}`)
     }
   }
 }

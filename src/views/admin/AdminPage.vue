@@ -12,7 +12,7 @@
       <el-button type="primary" @click="$router.push('/admin/bfk/add')">
         Add Customer
       </el-button>
-      <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+      <el-button type="primary" @click="$router.push('/admin/bfk/search')">
         Make Reservation
       </el-button>
     </div>

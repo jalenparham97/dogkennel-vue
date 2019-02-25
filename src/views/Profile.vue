@@ -69,14 +69,15 @@
           <h3>Your Reservations</h3>
 
           <ul class="reservations"> 
-            <li v-for="(reservation) in reservations" :key="reservation.id" class="reservation">
+            <li v-for="reservation in reservations" :key="reservation.res_id" class="reservation">
               <div class="reservation-info">
                 <span>Check In: {{ checkinDate(reservation) }}, {{ reservation.checkin_time }}</span> 
                 <span>Check Out: {{ checkoutDate(reservation) }}, {{ reservation.checkout_time }}</span>
-                <span>Pets Reserved: <span v-for="pet in reservation.pets_reserved" :key="pet.profile_id">{{ pet.pet_name }}</span></span>
+                <span>Pets Reserved: {{ reservation.numOfDogs }}</span>
               </div>
+              <span>Total Price: ${{ reservation.totalPrice }}</span>
               <div class="options-btns">
-                <button class="cancel" @click="cancel(reservation.id)">Cancel</button>
+                <button class="cancel" @click="cancel(reservation.res_id)">Cancel</button>
               </div>
             </li>
           </ul>
@@ -278,10 +279,10 @@ export default {
     ...mapActions('auth', ['logout']),
     ...mapActions('reservation', ['cancelReservation']),
     checkinDate(reservation) {
-      return moment(reservation.dates.checkin_date).format('MMM Do YYYY')
+      return moment(reservation.checkin_date).format('MMM Do YYYY')
     },
     checkoutDate(reservation) {
-      return moment(reservation.dates.checkout_date).format('MMM Do YYYY')
+      return moment(reservation.checkout_date).format('MMM Do YYYY')
     },
     initials() {
       const firstInitial = this.userProfile.firstName.split('')
@@ -340,7 +341,6 @@ export default {
     querySearch(queryString, cb) {
       const breeds = this.breeds
       const results = queryString ? breeds.filter(this.createFilter(queryString)) : breeds;
-      // call callback function to return suggestions
       cb(results)
     },
     createFilter(queryString) {

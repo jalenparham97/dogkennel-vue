@@ -71,19 +71,59 @@
           </div>
 
           <div class="check-btn">
-            <el-button type="primary">Check Availability</el-button>
+            <el-button 
+              type="primary" 
+              @click="check()" 
+              v-loading.fullscreen.lock="loading">
+                Check Availability
+            </el-button>
           </div>
         </div>
       </div>
 
+      <div class="available">
+        <div class="available-container">
+          <h2 v-if="noReservation">Enter in the reservation information</h2>
+
+          <div class="isAvailable" v-if="!noReservation && isAvailable">
+            <h2 class="title-2">The reservation is available!</h2>
+
+            <h4 class="dates">{{ checkinDate }} - {{ checkoutDate }}</h4>
+
+            <div class="total">
+              <h4>Dogs: {{ reservation.numOfDogs }}</h4>
+              <h4>Kennels: {{ reservation.numOfKennels }}</h4>
+              <h4>Total Price: ${{ calculateTotalPrice() }}</h4>
+            </div>
+
+            <el-button type="primary" @click="bookReservation">Book Now</el-button>
+          </div>
+
+          <div class="isAvailable" v-if="!noReservation && !isAvailable">
+            <h2 class="title">Sorry the reservation is unavailable!</h2>
+            <h2 class="subtitle">Try picking different dates!</h2>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import db from '../../db/db'
+import { Notification } from 'element-ui'
+import uuid from 'uuid'
+import { mapActions, mapGetters } from 'vuex'
+import Moment from 'moment'
+import { extendMoment } from 'moment-range'
+
+const moment = extendMoment(Moment)
+
 export default {
   name: 'MakeReservation',
   data: () => ({
+    loading: false,
+    noReservation: true,
     reservation: {
       checkin_date: '',
       checkout_date: '',
@@ -92,7 +132,169 @@ export default {
       numOfDogs: 1,
       numOfKennels: 1
     },
-  })
+    availableKennels: [],
+    availableReservations: []
+  }),
+  computed: {
+    ...mapGetters('reservation', ['isAvailable', 'newUserReservation']),
+    checkinDate() {
+      return moment(this.reservation.checkin_date).format('MMM Do YYYY')
+    },
+    checkoutDate() {
+      return moment(this.reservation.checkout_date).format('MMM Do YYYY')
+    },
+    formIsValid() {
+      if (this.reservation.checkin_date === '' || this.reservation.checkout_date === '' || this.reservation.checkin_time === '' || this.reservation.checkout_time === '') {
+        return false
+      } else {
+        return true
+      }
+    },
+    newReservation() {
+      const firstName = this.$store.getters.selectedProfile.firstName
+      const lastName = this.$store.getters.selectedProfile.lastName
+
+      return {
+        checkin_date: moment(this.reservation.checkin_date).valueOf(),
+        checkout_date: moment(this.reservation.checkout_date).valueOf(),
+        checkin_time: this.reservation.checkin_time,
+        checkout_time: this.reservation.checkout_time,
+        creator_id: this.$route.params.id,
+        res_id: uuid(),
+        owner: `${firstName.trim()} ${lastName.trim()}`,
+        numOfDogs: this.reservation.numOfDogs,
+        numOfKennels: this.reservation.numOfKennels,
+      }
+    }
+  },
+  async created() {
+    const daysRef = db.collection('days')
+
+    await daysRef.get().then(snapShot => {
+      if (!snapShot.empty) {
+          snapShot.forEach(doc => {
+            doc.ref.update({ currentDay: new Date().getDate() })
+            this.$store.commit('setCurrentDay', new Date().getDate())
+          })
+        }
+    }).then(() => {
+      this.updateKennelStatus()
+    })
+  },
+  methods: {
+    ...mapActions('reservation', ['isAvailableMethod', 'selectedReservation', 'updateKennelStatus', 'noMoreKennels']),
+    isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
+      if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate)) || (startDate <= checkinDate && endDate >= checkoutDate)) {
+        return false
+      } else {
+        return true
+      }
+    },
+    calculateTotalPrice() {
+      const numOfDogs = this.reservation.numOfDogs
+      const startDay = moment(this.newReservation.checkin_date)
+      const endDay = moment(this.newReservation.checkout_date)
+      let total;
+      let range;
+      let days
+
+      range = moment.range(startDay, endDay);
+      days = range.diff('days')
+
+      if (numOfDogs > 1) {
+        total = (days * 17) * numOfDogs
+      } else {
+        total = (days * 20) * numOfDogs
+      }
+
+      return total
+    },
+    async check() {
+      const reservationsRef = db.collection('reservations')
+      const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
+      let reservedKennels;
+
+      if (!this.formIsValid) {
+        Notification.error({
+          title: 'Error',
+          message: 'Please pick dates and time',
+          duration: 4000
+        })
+      } else {
+        if (this.reservation.numOfDogs < this.reservation.numOfKennels) {
+          Notification.error({
+            title: 'Error',
+            message: 'The number of kennels you select cannot be more than the number of dogs you reserve',
+            duration: 4000
+          })
+          return
+        } else if (this.calculateTotalPrice() < 0) {
+          Notification.error({
+            title: 'Error',
+            message: 'Please take a look at your dates. They may be out of order.',
+            duration: 4000
+          })
+          return
+        }
+        
+        this.loading = true
+        this.noReservation = false
+        this.isAvailableMethod(true)
+        this.noMoreKennels(false)
+        await kennelsRef.get().then(snapShot => {
+          snapShot.docs.forEach(doc => {
+            this.availableKennels.push(doc.data())
+          })
+
+          if (this.availableKennels.length < this.reservation.numOfKennels) {
+            this.noMoreKennels(true)
+            this.loading = false
+            return
+          }
+  
+          this.isAvailableMethod(true)
+          const restOfArray = this.availableKennels.length - this.reservation.numOfKennels
+          this.availableKennels.splice(this.reservation.numOfKennels, restOfArray)
+          reservedKennels = this.availableKennels
+
+          const reservation = {...this.newReservation, reservedKennels}
+          this.selectedReservation(reservation)
+          console.log(reservation)
+
+          reservationsRef.get().then(snapShot => {
+            if (snapShot.empty) {
+              this.isAvailableMethod(true)
+              this.selectedReservation(reservation)
+              this.loading = false
+              return
+            }
+            const startDate = moment(this.reservation.checkin_date).valueOf()
+            const endDate = moment(this.reservation.checkout_date).valueOf()
+
+            snapShot.docs.forEach(doc => {
+              this.availableReservations.push(doc.data())
+            })
+            this.availableReservations.forEach(res => {
+              const checkinDate = res.checkin_date
+              const checkoutDate = res.checkout_date
+
+              if (!this.isAvailible(startDate, checkinDate, endDate, checkoutDate) && (reservation.reservedKennels[0].kennel_name === res.reservedKennels[0].kennel_name)) {
+                this.isAvailableMethod(false)
+                console.log('Not available')
+                this.loading = false
+              } else {
+                this.loading = false
+                console.log('Available')
+              }
+            })
+          })
+        })
+      }
+    },
+    async bookReservation() {
+      this.$store.dispatch('saveUserReservation', {...this.newUserReservation, totalPrice: this.calculateTotalPrice()})
+    }
+  }
 }
 </script>
 
@@ -169,5 +371,28 @@ export default {
 
   .checkin-times, .checkout-times {
     margin-top: 10px;
+  }
+
+  .available {
+    width: 517.156px;
+  }
+
+  .available-container {
+    border: 1px solid #001B54;
+    padding: 20px;
+  }
+
+  .isAvailable {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .title-2 {
+    margin-bottom: -20px;
+  }
+
+  .subtitle {
+    text-align: center;
   }
 </style>

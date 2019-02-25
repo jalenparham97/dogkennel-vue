@@ -9,6 +9,7 @@ import ProfileForm from './views/ProfileForm.vue'
 import DogProfile from './views/DogProfile.vue'
 import Reservation from './views/Reservation.vue'
 import Services from './views/Services.vue'
+import Available from './views/Available.vue'
 import AdminLogin from './views/admin/AdminLogin.vue'
 import AdminPage from './views/admin/AdminPage.vue'
 import ReservationSearch from './views/admin/ReservationSearch.vue'
@@ -69,6 +70,11 @@ export default new Router({
       component: Services
     },
     {
+      path: '/reservation/available',
+      name: 'Available',
+      component: Available
+    },
+    {
       path: '/admin/bfk/login',
       name: 'AdminLogin',
       component: AdminLogin
@@ -101,6 +107,10 @@ export default new Router({
     {
       path: '/admin/bfk/reservation',
       name: 'MakeReservation',
+      component: MakeReservation
+    },
+    {
+      path: '/admin/bfk/make/reservation/:id',
       component: MakeReservation
     },
   ]

@@ -36,7 +36,7 @@
           <el-button type="primary" @click="$router.push('/admin/bfk/search')">
             Find Customers
           </el-button>  
-          <el-button type="primary" @click="$router.push('/admin/bfk/reservation')">
+          <el-button type="primary" @click="$router.push('/admin/bfk/search')">
             Make Reservation
           </el-button>
           <el-button type="primary" @click="$router.push('/admin/bfk/add')">
@@ -54,11 +54,11 @@
        </div>
        <div>
          <h4 class="header">Pets</h4>
-         <p class="data">{{ res.pets_reserved[0].pet_name }}</p>
+         <p class="data">{{ res.numOfDogs }}</p>
        </div>
        <div>
          <h4 class="header">Arrival Date</h4>
-         <p class="data">{{ res.dates.checkin_date }}</p>
+         <p class="data">{{ formattedDate(res.checkin_date) }}</p>
        </div>
        <div>
          <h4 class="header">Time</h4>
@@ -66,11 +66,15 @@
        </div>
        <div>
          <h4 class="header">Departure Date</h4>
-         <p class="data">{{ res.dates.checkout_date }}</p>
+         <p class="data">{{ formattedDate(res.checkout_date) }}</p>
        </div>
        <div>
          <h4 class="header">Time</h4>
          <p class="data">{{ res.checkout_time }}</p>
+       </div>
+       <div>
+         <h4 class="header">Kennels</h4>
+         <p class="data">{{ res.numOfKennels }}</p>
        </div>
        <div class="actions">
          <el-button class="cancel" @click="cancelReservation(res.id)">Cancel</el-button>
@@ -101,9 +105,6 @@ export default {
     allReservations() {
       return this.$store.getters.allReservations
     },
-    pets() {
-      return this.allReservations[0].pets_reserved.pet_name
-    },
     loading() {
       return this.$store.getters.loading
     }
@@ -120,9 +121,13 @@ export default {
     },
     selectProfile(id) {
       this.$store.dispatch('selectProfile', id)
+      router.push(`/admin/bfk/profile/${id}`)
     },
     cancelReservation(id) {
       this.$store.dispatch('cancelReservation', id)
+    },
+    formattedDate(date) {
+      return moment(date).format('MMM Do YYYY')
     }
   }
 }
