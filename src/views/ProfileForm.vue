@@ -1,77 +1,72 @@
 <template>
   <div class="general-info">
-    <form @submit.prevent="onSubmit" class="form">
-      <div class="profile-form">
-        <h2>Owner Profile</h2>
+    <form class="form">
+        <div class="profile-form">
+          <h2>Owner Profile</h2>
 
-        <label for="firstName">First Name</label>
-        <input v-model="profile.firstName" type="text" class="form-group" placeholder="First Name" name="firstName">
+          <label for="firstName">First Name</label>
+          <el-input v-model="profile.firstName" type="text" class="form-group" placeholder="First Name" name="firstName"></el-input>
 
-        <label for="lastName">Last Name</label>
-        <input v-model="profile.lastName" type="text" class="form-group" placeholder="Last Name" name="lastName">
+          <label for="lastName">Last Name</label>
+          <el-input v-model="profile.lastName" type="text" class="form-group" placeholder="Last Name" name="lastName"></el-input>
 
-        <label for="phone">Phone Number</label>
-        <input v-model="profile.phone" type="text" class="form-group" placeholder="Phone Number" name="phone">
+          <label for="phone">Phone Number</label>
+          <el-input v-model="profile.phone" type="text" class="form-group" placeholder="Phone Number" name="phone"></el-input>
 
-        <label for="email">Email Address</label>
-        <input v-model="profile.email" type="text" class="form-group" placeholder="Email Address" name="email">
+          <label for="email">Email Address</label>
+          <el-input v-model="profile.email" type="text" class="form-group" placeholder="Email Address" name="email"></el-input>
 
-        <label for="address">Home Address</label>
-        <input v-model="profile.address" type="text" class="form-group" placeholder="Home Address" name="address">
-      </div>
+          <label for="address">Home Address</label>
+          <el-input v-model="profile.address" type="text" class="form-group" placeholder="Home Address" name="address"></el-input>
+        </div>
 
-      <div class="profile-form">
-        <h2>Veterinarian Info</h2>
+        <div class="profile-form">
+          <h2>Veterinarian Info</h2>
 
-        <label for="clinic">Clinic Name</label>
-        <input v-model="profile.clinic" type="text" class="form-group" placeholder="Clinic Name" name="clinic">
+          <label for="clinic">Clinic Name</label>
+          <el-input v-model="profile.clinic" type="text" class="form-group" placeholder="Clinic Name" name="clinic"></el-input>
 
-        <label for="vetPhone">Phone Number</label>
-        <input v-model="profile.vetPhone" type="text" class="form-group" placeholder="Phone Number" name="vetPhone">
+          <label for="vetPhone">Phone Number</label>
+          <el-input v-model="profile.vetPhone" type="text" class="form-group" placeholder="Phone Number" name="vetPhone"></el-input>
 
-        <label for="vetAddress">Adress</label>
-        <input v-model="profile.vetAddress" type="text" class="form-group" placeholder="Address" name="vetAddress">
+          <label for="vetAddress">Address</label>
+          <el-input v-model="profile.vetAddress" type="text" class="form-group" placeholder="Address" name="vetAddress"></el-input>
 
-        <label for="vetEmail">Email Adress</label>
-        <input v-model="profile.vetEmail" type="text" class="form-group" placeholder="Email Address" name="vetEmail">
+          <label for="vetEmail">Email Address</label>
+          <el-input v-model="profile.vetEmail" type="email" class="form-group" placeholder="Email Address" name="vetEmail"></el-input>
 
-        <label for="vetFax">Fax Number</label>
-        <input v-model="profile.vetFax" type="text" class="form-group" placeholder="Fax Number" name="vetFax">
-      </div>
+          <label for="vetFax">Fax Number</label>
+          <el-input v-model="profile.vetFax" type="text" class="form-group" placeholder="Fax Number" name="vetFax"></el-input>
+        </div>
 
-      <div class="profile-form">
-        <h2>Pet Profile</h2>
+        <div class="profile-form">
+          <h2>Pet Profile</h2>
 
-        <label for="petName">Name</label>
-        <input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName">
+          <label for="petName">Name</label>
+          <el-input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
 
-        <label for="petAge">Age</label>
-        <input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge">
+          <label for="petAge">Age</label>
+          <el-input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
 
-        <div class="breed-group">
-          <label for="petBreed">Breed</label>
-          <input @click="getDogBreeds" v-model="petProfile.petBreed" type="text" class="form-group" placeholder="Breed" name="petBreed">
-          <div class="breed-dropdown" uk-dropdown="mode: click">
-            <ul class="breeds">
-              <li @click="selectBreed(breed.name)" v-for="breed in filteredBreeds" :key="breed.id" class="breed"><span>{{ breed.name }}</span></li>
-            </ul>
+          <div class="pet-breed">
+            <label for="petBreed">Breed</label>
+            <el-autocomplete
+              class="inline-input"
+              v-model="petProfile.petBreed"
+              :fetch-suggestions="querySearch"
+              placeholder="Pet Breed"
+            ></el-autocomplete>
           </div>
+
+          <label for="petMedicine">Medicine</label>
+          <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
+
+          <label for="petDiet">Dietary Restrictions</label>
+          <el-input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
         </div>
 
-        <div class="medical-records">
-          <label for="records">Medical Records</label>
-          <input @change="onFileUpload" type="file" multiple name="records" class="records">
-        </div>
-
-        <label for="petMedicine">Medicine</label>
-        <input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine">
-
-        <label for="petDiet">Dietary Restrictions</label>
-        <input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet">
-      </div>
-
-      <button class="submit-btn" type="submit">Save & Make a Reservation</button>
-    </form>
+        <el-button class="submit-btn" @click.prevent="onSubmit" type="primary">Save</el-button>
+      </form>
 
   </div>
 </template>
@@ -82,6 +77,7 @@ import firebase from 'firebase'
 import UIkit from 'uikit'
 import axios from 'axios'
 import uuid from 'uuid'
+import { Notification } from 'element-ui';
 
 export default {
   name: 'profileform',
@@ -113,6 +109,7 @@ export default {
   },
   created() {
     this.profile.email = this.user.email
+    this.loadDogBreeds()
   },
   computed: {
     ...mapGetters('auth', ['user']),
@@ -133,51 +130,45 @@ export default {
     ...mapActions('profile', ['saveProfile', 'addPetProfile']),
     onSubmit() {
       if (!this.formIsValid) {
-        UIkit.notification({
+        Notification.error({
+          title: 'Error',
           message: 'Do not leave any fields empty!',
-          status: 'danger',
-          pos: 'top-center',
-          timeout: 4000
-        }); 
+          duration: 4000
+        });
       } else {
         this.saveProfile(this.profile)
         this.addPetProfile(this.petProfile)
       }
     },
-    getDogBreeds() {
-      axios({
+    // Loading Dog Breeds
+    async loadDogBreeds() {
+      const response = await axios({
         method:'get',
         url:'https://api.TheDogAPI.com/v1/breeds',
         headers: {'x-api-key': '147fd97a-419d-4fe0-90be-ee6c0b83cbe6'}
-      }).then(response => {
-        const breeds = []
-        response.data.forEach(breed => {
-          breeds.push({ id: breed.id, name: breed.name.toUpperCase() })
-        })
-        this.breeds = breeds
-      }).catch(err => {
-        console.log(err)
       })
-    },
-    selectBreed(breed) {
-      this.profile.petBreed = breed
-    },
-    onFileUpload(e) {
-      // Get file
-      let files = e.target.files
 
-      for (let file of files) {
-        // Create a storage ref
-        let storageRef = firebase.storage().ref(`medical_records/${this.user.user_id}/${file.name}`)
-        // Upload file
-        storageRef.put(file)
+      const breeds = []
+      response.data.forEach(breed => {
+        breeds.push({ 'value': `${breed.name.toUpperCase()}`, 'id': `${breed.id}` })
+      })
+      this.breeds = breeds 
+    },
+    querySearch(queryString, cb) {
+      const breeds = this.breeds
+      const results = queryString ? breeds.filter(this.createFilter(queryString)) : breeds;
+      cb(results)
+    },
+    createFilter(queryString) {
+      return (breed) => {
+        return (breed.value.toUpperCase().indexOf(queryString.toUpperCase()) === 0);
       }
     },
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .general-info {
   margin: 50px auto;
   width: 90%;
@@ -210,55 +201,17 @@ export default {
 }
 
 .submit-btn, .form-group {
-  padding: 10px;
   font-size: 1.2rem;
-  outline: none;
 }
 
 .form-group {
   margin-bottom: 10px;
-  border: 1px solid #001B54;
   color: #001B54;
 }
 
-.breed-group {
+.pet-breed {
   display: flex;
   flex-direction: column;
-}
-
-.breed-dropdown {
-  max-width: 300px;
-  height: 150px;
-  overflow-y: scroll;
-  padding: 0px;
-}
-
-.breeds {
-  list-style: none;
-  width: 100%;
-  padding: 0px;
-}
-
-.breed {
-  color: #001B54;
-  cursor: pointer;
-}
-
-.breed:hover {
-  background: #efefef;
-}
-
-.breed span {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.medical-records {
-  margin: 10px 0px;
-}
-
-.records {
-  margin-left: 20px;
 }
 
 .submit-btn {

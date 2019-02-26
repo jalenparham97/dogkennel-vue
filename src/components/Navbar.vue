@@ -67,8 +67,12 @@ export default {
   },
   methods: {
     ...mapActions('auth', ['logout']),
+    ...mapActions('profile', ['resetState']),
+    ...mapActions('reservation', ['resetResState']),
     onLogout() {
       this.logout()
+      this.resetState()
+      this.resetResState()
       if (!this.isLoggedIn) {
         this.$router.push('/login')
       }

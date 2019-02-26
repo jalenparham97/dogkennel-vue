@@ -17,9 +17,6 @@
             <li class="nav-item">
               <a class="nav-link" @click="editProfileDialog = true">Edit Profile</a>
             </li>
-            <li class="nav-item">
-              <router-link to="" class="nav-link" @click="logout">Logout</router-link>
-            </li>
           </ul>
         </div>
       </div>
@@ -65,7 +62,7 @@
           </div>
         </div>
 
-        <div class="reservations-container">
+        <div class="reservations-container" v-if="reservations.length">
           <h3>Your Reservations</h3>
 
           <ul class="reservations"> 
@@ -77,7 +74,7 @@
               </div>
               <span>Total Price: ${{ reservation.totalPrice }}</span>
               <div class="options-btns">
-                <button class="cancel" @click="cancel(reservation.res_id)">Cancel</button>
+                <button class="cancel" @click="cancel(reservation)">Cancel</button>
               </div>
             </li>
           </ul>
@@ -152,31 +149,30 @@
         :visible.sync="addPetDialog"
         width="90%">
 
-    
         <div>
           <h2>New Pet</h2>
 
           <label for="petName">Name</label>
-          <el-input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
+          <el-input v-model="newPetProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
 
           <label for="petAge">Age</label>
-          <el-input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
+          <el-input v-model="newPetProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
 
           <div class="pet-breed">
             <label for="petBreed">Breed</label>
             <el-autocomplete
               class="inline-input"
-              v-model="petProfile.petBreed"
+              v-model="newPetProfile.petBreed"
               :fetch-suggestions="querySearch"
               placeholder="Pet Breed"
             ></el-autocomplete>
           </div>
 
           <label for="petMedicine">Medicine</label>
-          <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
+          <el-input v-model="newPetProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
 
           <label for="petDiet">Dietary Restrictions</label>
-          <el-input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
+          <el-input v-model="newPetProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
         </div>  
         
         <span slot="footer" class="dialog-footer">
@@ -260,6 +256,13 @@ export default {
         petMedice: '',
         petDiet: ''
       },
+      newPetProfile: {
+        petName: '',
+        petAge: '',
+        petBreed: '',
+        petMedice: 'N/A',
+        petDiet: 'N/A'
+      },
       breeds: [],
     }
   },
@@ -267,6 +270,7 @@ export default {
     this.loadDogBreeds()
   },
   computed: {
+    ...mapGetters('auth', ['user']),
     ...mapGetters('profile', ['profile', 'petProfiles']),
     ...mapGetters('reservation', ['reservations']),
     userProfile() {
@@ -275,9 +279,9 @@ export default {
     },
   },
   methods: {
-    ...mapActions('profile', ['getProfile', 'updateUserProfile', 'addPetProfile', 'updatePetProfile']),
+    ...mapActions('profile', ['getProfile', 'updateUserProfile', 'addPetProfile', 'updatePetProfile', 'getPetProfiles', 'resetState']),
     ...mapActions('auth', ['logout']),
-    ...mapActions('reservation', ['cancelReservation']),
+    ...mapActions('reservation', ['cancelReservation', 'updateCancelledKennels', 'resetResState']),
     checkinDate(reservation) {
       return moment(reservation.checkin_date).format('MMM Do YYYY')
     },
@@ -289,8 +293,9 @@ export default {
       const lastInitial = this.userProfile.lastName.split('')
       return `${firstInitial[0]}${lastInitial[0]}`
     },
-    cancel(id) {
-      this.cancelReservation(id)
+    cancel(res) {
+      this.cancelReservation(res)
+      this.updateCancelledKennels(res)
     },
     updateProfile() {
       this.updateUserProfile(this.updatedProfile)
@@ -307,24 +312,20 @@ export default {
     openEditPet(petProfile) {
       this.editPetDialog = true
       this.petProfile = petProfile
-      console.log(this.petProfile)
     },
     openAddPet() {
-      this.petProfile.petName =  ''
-      this.petProfile.petAge =  ''
-      this.petProfile.petBreed =  ''
-      this.petProfile.petMedice =  ''
-      this.petProfile.petDiet =  ''
+      this.petProfile.petName = ''
+      this.petProfile.petAge = ''
+      this.petProfile.petBreed = ''
+      this.petProfile.petMedice = ''
+      this.petProfile.petDiet = ''
       this.addPetDialog = true
     },
     cancelAddPet() {
-      this.petProfile.petName =  ''
-      this.petProfile.petAge =  ''
-      this.petProfile.petBreed =  ''
-      this.petProfile.petMedice =  ''
-      this.petProfile.petDiet =  ''
+      this.getPetProfiles()
       this.addPetDialog = false
     },
+    // Loading Dog Breeds
     async loadDogBreeds() {
       const response = await axios({
         method:'get',
@@ -554,6 +555,10 @@ export default {
   color: #001B54;
   text-decoration: none;
   font-size: 1.2rem;
+}
+
+.el-input  {
+  margin-bottom: 10px;
 }
 
 /* MEDIA QUERY */

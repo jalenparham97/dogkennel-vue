@@ -63,6 +63,7 @@ const moment = extendMoment(Moment)
 export default {
   name: 'Available',
   computed: {
+    ...mapGetters('auth', ['user']),
     ...mapGetters('reservation', ['isAvailable', 'newUserReservation', 'noMoreKennels']),
     checkinDate() {
       return moment(this.newUserReservation.checkin_date).format('MMM Do YYYY')
@@ -74,7 +75,7 @@ export default {
   methods: {
     ...mapActions('reservation', ['saveReservation']),
     async bookReservation() {
-      await this.saveReservation({...this.newUserReservation, totalPrice: this.calculateTotalPrice()})
+      !this.user ? this.$router.push('/signup') : await this.saveReservation({...this.newUserReservation, totalPrice: this.calculateTotalPrice()})
     },
     calculateTotalPrice() {
       const numOfDogs = this.newUserReservation.numOfDogs

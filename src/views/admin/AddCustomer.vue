@@ -183,7 +183,8 @@ export default {
 
     & .nav-items {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
+      padding: 0px 40px;
     }
   }
 

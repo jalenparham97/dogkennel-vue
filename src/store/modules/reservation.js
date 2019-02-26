@@ -6,7 +6,6 @@ import { stat } from 'fs';
 const state = {
   reservations: [],
   kennels: [],
-  resError: '',
   isAvailable: true,
   selectedReservation: null,
   noMoreKennels: false
@@ -36,6 +35,9 @@ const mutations = {
   },
   setNoMoreKennels: (state, boolean) => {
     state.noMoreKennels = boolean
+  },
+  resetReservations: (state, payload) => {
+    state.reservaions = payload
   }
 }
 
@@ -67,12 +69,25 @@ const actions = {
   resetState: ({ commit }) => {
     commit('reset')
   },
-  cancelReservation: ({ dispatch }, id) => {
-    db.collection('reservations').where('res_id', '==', id).get().then(snapShot => {
+  cancelReservation: ({ dispatch }, res) => {
+    db.collection('reservations').where('res_id', '==', res.res_id).get().then(snapShot => {
       snapShot.docs.forEach(doc => {
         doc.ref.delete()
       })
       dispatch('getReservations')
+    })
+  },
+  async updateCancelledKennels(_, res) {
+    const kennelsRef = db.collection('kennels')
+
+    const kennels = await kennelsRef.get()
+
+    kennels.docs.forEach(kennel => {
+      res.reservedKennels.forEach(resKennel => {
+        if (kennel.data().id === resKennel.id) {
+          kennel.ref.update({status: 'available'})
+        }
+      })
     })
   },
   async getKennels({ commit }) {
@@ -109,6 +124,9 @@ const actions = {
         }) 
       }
     })
+  },
+  resetResState({ commit }, payload) {
+    commit('resetReservations', [])
   }
 }
 

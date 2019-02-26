@@ -77,7 +77,7 @@
          <p class="data">{{ res.numOfKennels }}</p>
        </div>
        <div class="actions">
-         <el-button class="cancel" @click="cancelReservation(res.id)">Cancel</el-button>
+         <el-button class="cancel" @click="cancel(res)">Cancel</el-button>
          <el-button class="select" @click="selectProfile(res.creator_id)">Select</el-button>
        </div>
      </div>
@@ -87,6 +87,7 @@
 
 <script>
 import moment from 'moment'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'ReservationSearch',
@@ -110,6 +111,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('reservation', ['updateCancelledKennels']),
     runSearch() {
       const query = {
         date1: moment(this.date1).valueOf(), 
@@ -121,10 +123,11 @@ export default {
     },
     selectProfile(id) {
       this.$store.dispatch('selectProfile', id)
-      router.push(`/admin/bfk/profile/${id}`)
+      this.$router.push(`/admin/bfk/profile/${id}`)
     },
-    cancelReservation(id) {
-      this.$store.dispatch('cancelReservation', id)
+    cancel(res) {
+      this.$store.dispatch('cancelReservation', res)
+      this.updateCancelledKennels(res)
     },
     formattedDate(date) {
       return moment(date).format('MMM Do YYYY')

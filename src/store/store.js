@@ -2,13 +2,11 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from '@/db/firebase.config'
 import router from '@/router'
-import moment from 'moment'
 import uuid from 'uuid'
 import db from '@/db/db'
 import auth from '@/store/modules/auth'
 import profile from '@/store/modules/profile'
 import reservation from '@/store/modules/reservation'
-import { all } from 'q';
 
 Vue.use(Vuex)
 
@@ -152,12 +150,16 @@ export default new Vuex.Store({
       await dispatch('getAllReservations')
       router.push('/admin/bfk/reservations') 
     },   
-    cancelReservation({ dispatch }, id) {
-      db.collection('reservations').where('id', '==', id).get().then(snapShot => {
+    cancelReservation({ state, dispatch }, res) {
+      db.collection('reservations').where('res_id', '==', res.res_id).get().then(snapShot => {
         snapShot.docs.forEach(doc => {
           doc.ref.delete()
+          console.log('Deleted')
         })
         dispatch('getAllReservations')
+        if (state.selectedProfile) {
+          dispatch('getSelectedProfileReservations', res.creator_id)
+        }
       })
     },
 
@@ -207,6 +209,10 @@ export default new Vuex.Store({
     },
     addPetProfile: (_, payload) => {
       db.collection('pet-profiles').add({...payload, profile_id: uuid()})
+    },
+    addPetProfile: ({ state, dispatch }, payload) => {
+      db.collection('pet-profiles').add({...payload, user_id: state.selectedProfile.user_id})
+      dispatch('getPetProfiles', state.selectedProfile.user_id)
     },
   },
 

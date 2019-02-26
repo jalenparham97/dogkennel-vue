@@ -13,11 +13,11 @@ const mutations = {
   setPetProfiles: (state, payload) => {
     state.petProfiles = payload
   },
-  resetProfile: state => {
-    state.profile = null
+  resetProfile: (state, payload) => {
+    state.profile = payload
   }, 
-  resetPetProfiles: state => {
-    state.petProfiles = []
+  resetPetProfiles: (state, payload) => {
+    state.petProfiles = payload
   }
 }
 
@@ -89,9 +89,8 @@ const actions = {
     })  
   },
   resetState: ({ state, commit }) => {
-    commit('resetProfile')
-    commit('resetPetProfiles')
-    console.log(state.petProfiles, state.profile)
+    commit('resetProfile', null)
+    commit('resetPetProfiles', [])
   }
 }
 

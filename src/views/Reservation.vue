@@ -151,8 +151,6 @@ export default {
         checkout_date: moment(this.reservation.checkout_date).valueOf(),
         checkin_time: this.reservation.checkin_time,
         checkout_time: this.reservation.checkout_time,
-        creator_id: this.user.user_id,
-        owner: `${this.profile.firstName.trim()} ${this.profile.lastName.trim()}`,
         res_id: uuid(),
         numOfDogs: this.reservation.numOfDogs,
         numOfKennels: this.reservation.numOfKennels
@@ -168,10 +166,30 @@ export default {
         return true
       }
     },
+    calculateTotalPrice() {
+      const numOfDogs = this.reservation.numOfDogs
+      const startDay = moment(this.newReservation.checkin_date)
+      const endDay = moment(this.newReservation.checkout_date)
+      let total;
+      let range;
+      let days
+
+      range = moment.range(startDay, endDay);
+      days = range.diff('days')
+
+      if (numOfDogs > 1) {
+        total = (days * 17) * numOfDogs
+      } else {
+        total = (days * 20) * numOfDogs
+      }
+
+      return total
+    },
     async check() {
       const reservationsRef = db.collection('reservations')
       const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
-      let reservedKennels;
+      let reservedKennels
+      let reservation
 
       if (!this.formIsValid) {
         Notification.error({
@@ -214,8 +232,15 @@ export default {
           this.availableKennels.splice(this.reservation.numOfKennels, restOfArray)
           reservedKennels = this.availableKennels
 
-          const reservation = {...this.newReservation, reservedKennels}
-          this.selectedReservation(reservation)
+          if (this.user) {
+            reservation = {...this.newReservation, creator_id: this.user.user_id, owner: `${this.profile.firstName.trim()} ${this.profile.lastName.trim()}`, reservedKennels}
+            this.selectedReservation(reservation)
+            console.log(reservation)
+          } else {              
+            reservation = {...this.newReservation, reservedKennels}
+            this.selectedReservation(reservation)
+            console.log(reservation)
+          }
 
           reservationsRef.get().then(snapShot => {
             if (snapShot.empty) {
@@ -237,8 +262,10 @@ export default {
               if (!this.isAvailible(startDate, checkinDate, endDate, checkoutDate) && (reservation.reservedKennels[0].kennel_name === res.reservedKennels[0].kennel_name)) {
                 this.isAvailableMethod(false)
                 this.$router.push('/reservation/available')
+                console.log('Not available')
               } else {
                 this.$router.push('/reservation/available')
+                console.log('Available')
               }
             })
           })
