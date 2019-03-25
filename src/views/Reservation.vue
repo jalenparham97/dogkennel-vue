@@ -1,148 +1,197 @@
 <template>
-<div class="reservation-container">
-  <Navbar></Navbar>
+  <div class="reservation-container">
+    <Navbar></Navbar>
 
-  <h1 class="book-title">Book A Reservation Today</h1>
+    <h1 class="book-title">Book A Reservation Today</h1>
 
-  <div class="res-container">
-    <div class="reservation">
-      <div class="reservation-form">
-        <form class="reservation-container">
-          <div class="dates">
-            <div class="checkin">
-              <label for="checkin">Check In</label>
-              <el-date-picker
-                name="checkin"
-                v-model="reservation.checkin_date"
-                type="date"
-                :picker-options="{ format: 'MM-dd-yyyy' }"
-                placeholder="Select drop off date">
-              </el-date-picker>
-              <div class="checkin-times">
-                <el-radio-group v-model="reservation.checkin_time" size="small">
-                  <el-radio-button label="11am - 1pm"></el-radio-button>
-                  <el-radio-button label="4pm - 6pm"></el-radio-button>
-                </el-radio-group>
+    <div class="res-container">
+      <div class="reservation">
+        <div class="reservation-form">
+          <form class="reservation-container">
+            <div class="dates">
+              <div class="checkin">
+                <label for="checkin">Check In</label>
+                <el-date-picker
+                @input="checkTime(reservation.checkin_date)"
+                  name="checkin"
+                  v-model="reservation.checkin_date"
+                  type="date"
+                  :picker-options="{ format: 'MM-dd-yyyy' }"
+                  placeholder="Select drop off date"
+                ></el-date-picker>
+                <div class="checkin-times">
+                  <el-select v-model="reservation.checkin_time" clearable placeholder="Choose drop off time">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.disabled"
+                    ></el-option>
+                  </el-select>
+                </div>
+              </div>
+              <div class="checkout">
+                <label for="checkout">Check Out</label>
+                <el-date-picker
+                  @input="checkTime(reservation.checkout_date)"
+                  name="checkout"
+                  v-model="reservation.checkout_date"
+                  type="date"
+                  :picker-options="{ format: 'MM-dd-yyyy' }"
+                  placeholder="Select pick up date"
+                ></el-date-picker>
+                <div class="checkout-times" @click="checkTime(reservation.checkout_date)">
+                  <el-select v-model="reservation.checkout_time" clearable placeholder="Choose pick up time">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.disabled"
+                    ></el-option>
+                  </el-select>
+                </div>
               </div>
             </div>
-            <div class="checkout">
-              <label for="checkout">Check Out</label>
-              <el-date-picker
-                name="checkout"
-                v-model="reservation.checkout_date"
-                type="date"
-                :picker-options="{ format: 'MM-dd-yyyy' }"
-                placeholder="Select pick up date">
-              </el-date-picker>
-              <div class="checkout-times">
-                <el-radio-group v-model="reservation.checkout_time" size="small">
-                  <el-radio-button label="11am - 1pm"></el-radio-button>
-                  <el-radio-button label="4pm - 6pm"></el-radio-button>
-                </el-radio-group>
-              </div>
+          </form>
+
+          <div class="dropdowns">
+            <div class="dog-numbers">
+              <p>Number of Dogs</p>
+
+              <el-input-number
+                v-model="reservation.numOfDogs"
+                controls-position="right"
+                :min="1"
+                :max="10"
+              ></el-input-number>
+            </div>
+
+            <div class="kennel-numbers">
+              <p>Number of Kennels</p>
+
+              <el-input-number
+                v-model="reservation.numOfKennels"
+                controls-position="right"
+                :min="1"
+                :max="10"
+              ></el-input-number>
             </div>
           </div>
-        </form>
 
-        <div class="dropdowns">
-          <div class="dog-numbers">
-            <p>Number of Dogs</p>
-
-            <el-input-number v-model="reservation.numOfDogs" controls-position="right" :min="1" :max="10"></el-input-number>
-          </div>
-
-          <div class="kennel-numbers">
-            <p>Number of Kennels</p>
-
-            <el-input-number v-model="reservation.numOfKennels" controls-position="right" :min="1" :max="10"></el-input-number>
+          <div class="check-btn">
+            <el-button type="primary" @click="check()">Check Availability</el-button>
           </div>
         </div>
+      </div>
 
-        <div class="check-btn">
-          <el-button type="primary" @click="check()">Check Availability</el-button>
+      <div class="reservation-information">
+        <h2>Reservation Information</h2>
+
+        <div class="single">
+          <h4>Single Dog / Single Kennel</h4>
+          <p>Dogs: $20 per dog per day</p>
         </div>
+
+        <div class="Multiple">
+          <h4>Multiple Dogs / Multiple Kennels</h4>
+          <p>Dogs: $17 per dog per day</p>
+        </div>
+
+        <p
+          class="rules"
+        >If you have multiple dogs you can put them into one Kennel for a discounted rate. There is a restriction to how you can bundle your dogs into kennels. It depends on the size of your dogs.</p>
+
+        <p class="sizes">3 small dogs = 1 Kennel</p>
+        <p class="sizes">2 small dogs = 1 Kennel</p>
+        <p class="sizes">2 medium dogs = 1 Kennel</p>
+        <p class="sizes">1 Large Dog / 1 Small – Medium Dog = 1 Kennel</p>
       </div>
-    </div>
-
-    <div class="reservation-information">
-      <h2>Reservation Information</h2>
-
-      <div class="single">
-        <h4>Single Dog / Single Kennel</h4>
-        <p>Dogs: $20 per dog per day</p>
-      </div>
-
-      <div class="Multiple">
-        <h4>Multiple Dogs / Multiple Kennels</h4>
-        <p>Dogs: $17 per dog per day</p>
-      </div>
-
-      <p class="rules">If you have multiple dogs you can put them into one Kennel for a discounted rate.  There is a restriction to how you can bundle your dogs into kennels.  It depends on the size of your dogs.</p>
-
-      <p class="sizes">3 small dogs  =  1 Kennel</p>
-      <p class="sizes">2 small dogs  =  1 Kennel</p>
-      <p class="sizes">2 medium dogs  =  1 Kennel</p>
-      <p class="sizes">1 Large Dog / 1 Small – Medium Dog = 1 Kennel</p>
     </div>
   </div>
-</div>
 </template>
 
 <script>
-import db from '../db/db'
-import Navbar from '../components/Navbar'
-import { mapGetters, mapActions } from 'vuex'
-import moment from 'moment'
-import uuid from 'uuid'
-import { Notification } from 'element-ui';
+import db from "../db/db";
+import Navbar from "../components/Navbar";
+import { mapGetters, mapActions } from "vuex";
+import moment from "moment";
+import uuid from "uuid";
+import { Notification } from "element-ui";
 
 export default {
-  name: 'reservation',
+  name: "reservation",
   components: {
     Navbar
   },
   data() {
     return {
       reservation: {
-        checkin_date: '',
-        checkout_date: '',
-        checkin_time: '',
-        checkout_time: '',
+        checkin_date: "",
+        checkout_date: "",
+        checkin_time: "",
+        checkout_time: "",
         numOfDogs: 1,
         numOfKennels: 1
       },
+      options: [
+        {
+          value: "11am - 1pm",
+          label: "11am - 1pm",
+          disabled: false
+        },
+        {
+          value: "4pm - 6pm",
+          label: "4pm - 6pm",
+          disabled: false
+        },
+        {
+          value: "5pm - 7pm",
+          label: "5pm - 7pm",
+          disabled: true
+        }
+      ],
       availableKennels: [],
       availableReservations: []
-    }
+    };
   },
   async created() {
-    const daysRef = db.collection('days')
+    const daysRef = db.collection("days");
 
-    await daysRef.get().then(snapShot => {
-      if (!snapShot.empty) {
+    await daysRef
+      .get()
+      .then(snapShot => {
+        if (!snapShot.empty) {
           snapShot.forEach(doc => {
-            doc.ref.update({ currentDay: new Date().getDate() })
-            this.$store.commit('setCurrentDay', new Date().getDate())
-          })
+            doc.ref.update({ currentDay: new Date().getDate() });
+            this.$store.commit("setCurrentDay", new Date().getDate());
+          });
         }
-    }).then(() => {
-      this.updateKennelStatus()
-    })
+      })
+      .then(() => {
+        this.updateKennelStatus();
+      });
   },
   computed: {
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('profile', ['profile']),
+    ...mapGetters("auth", ["user"]),
+    ...mapGetters("profile", ["profile"]),
     checkinDate() {
-      return moment(this.reservation.checkin_date).format('MMM Do YYYY')
+      return moment(this.reservation.checkin_date).format("MMM Do YYYY");
     },
     checkoutDate() {
-      return moment(this.reservation.checkout_date).format('MMM Do YYYY')
+      return moment(this.reservation.checkout_date).format("MMM Do YYYY");
     },
     formIsValid() {
-      if (this.reservation.checkin_date === '' || this.reservation.checkout_date === '' || this.reservation.checkin_time === '' || this.reservation.checkout_time === '') {
-        return false
+      if (
+        this.reservation.checkin_date === "" ||
+        this.reservation.checkout_date === "" ||
+        this.reservation.checkin_time === "" ||
+        this.reservation.checkout_time === ""
+      ) {
+        return false;
       } else {
-        return true
+        return true;
       }
     },
     newReservation() {
@@ -154,126 +203,173 @@ export default {
         res_id: uuid(),
         numOfDogs: this.reservation.numOfDogs,
         numOfKennels: this.reservation.numOfKennels
-      }
+      };
     }
   },
   methods: {
-    ...mapActions('reservation', ['isAvailableMethod', 'selectedReservation', 'noMoreKennels', 'updateKennelStatus']),
+    ...mapActions("reservation", [
+      "isAvailableMethod",
+      "selectedReservation",
+      "noMoreKennels",
+      "updateKennelStatus"
+    ]),
+    checkTime(date) {
+      const newDate = new Date(date)
+      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      let day = newDate.getDay();
+      
+      this.options[0].disabled = false
+      this.options[1].disabled = false
+      this.options[2].disabled = true
+
+      if (weekdays[day] === 'Sunday') {
+        this.options[0].disabled = true
+        this.options[1].disabled = true
+        this.options[2].disabled = false
+      }
+    },
     isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
-      if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate)) || (startDate <= checkinDate && endDate >= checkoutDate)) {
-        return false
+      if (
+        (startDate >= checkinDate && startDate <= checkoutDate) ||
+        (endDate >= checkinDate && endDate <= checkoutDate) ||
+        (startDate <= checkinDate && endDate >= checkoutDate)
+      ) {
+        return false;
       } else {
-        return true
+        return true;
       }
     },
     calculateTotalPrice() {
-      const numOfDogs = this.reservation.numOfDogs
-      const startDay = moment(this.newReservation.checkin_date)
-      const endDay = moment(this.newReservation.checkout_date)
+      const numOfDogs = this.reservation.numOfDogs;
+      const startDay = moment(this.newReservation.checkin_date);
+      const endDay = moment(this.newReservation.checkout_date);
       let total;
       let range;
-      let days
+      let days;
 
       range = moment.range(startDay, endDay);
-      days = range.diff('days')
+      days = range.diff("days");
 
       if (numOfDogs > 1) {
-        total = (days * 17) * numOfDogs
+        total = days * 17 * numOfDogs;
       } else {
-        total = (days * 20) * numOfDogs
+        total = days * 20 * numOfDogs;
       }
 
-      return total
+      return total;
     },
     async check() {
-      const reservationsRef = db.collection('reservations')
-      const kennelsRef = db.collection('kennels').orderBy('id', 'asc').where('status', '==', 'available')
-      let reservedKennels
-      let reservation
+      const reservationsRef = db.collection("reservations");
+      const kennelsRef = db
+        .collection("kennels")
+        .orderBy("id", "asc")
+        .where("status", "==", "available");
+      let reservedKennels;
+      let reservation;
 
       if (!this.formIsValid) {
         Notification.error({
-          title: 'Error',
-          message: 'Please pick dates and time',
+          title: "Error",
+          message: "Please pick dates and time",
           duration: 4000
-        })
+        });
       } else {
         if (this.reservation.numOfDogs < this.reservation.numOfKennels) {
           Notification.error({
-            title: 'Error',
-            message: 'The number of kennels you select cannot be more than the number of dogs you reserve',
+            title: "Error",
+            message:
+              "The number of kennels you select cannot be more than the number of dogs you reserve",
             duration: 4000
-          })
-          return
+          });
+          return;
         } else if (this.calculateTotalPrice() < 0) {
           Notification.error({
-            title: 'Error',
-            message: 'Please take a look at your dates. They may be out of order.',
+            title: "Error",
+            message:
+              "Please take a look at your dates. They may be out of order.",
             duration: 4000
-          })
-          return
+          });
+          return;
         }
 
-        this.isAvailableMethod(true)
-        this.noMoreKennels(false)
+        this.isAvailableMethod(true);
+        this.noMoreKennels(false);
         await kennelsRef.get().then(snapShot => {
           snapShot.docs.forEach(doc => {
-            this.availableKennels.push(doc.data())
-          })
+            this.availableKennels.push(doc.data());
+          });
 
           if (this.availableKennels.length < this.reservation.numOfKennels) {
-            this.noMoreKennels(true)
-            this.$router.push('/reservation/available')
-            return
+            this.noMoreKennels(true);
+            this.$router.push("/reservation/available");
+            return;
           }
-  
-          this.isAvailableMethod(true)
-          const restOfArray = this.availableKennels.length - this.reservation.numOfKennels
-          this.availableKennels.splice(this.reservation.numOfKennels, restOfArray)
-          reservedKennels = this.availableKennels
+
+          this.isAvailableMethod(true);
+          const restOfArray =
+            this.availableKennels.length - this.reservation.numOfKennels;
+          this.availableKennels.splice(
+            this.reservation.numOfKennels,
+            restOfArray
+          );
+          reservedKennels = this.availableKennels;
 
           if (this.user) {
-            reservation = {...this.newReservation, creator_id: this.user.user_id, owner: `${this.profile.firstName.trim()} ${this.profile.lastName.trim()}`, reservedKennels}
-            this.selectedReservation(reservation)
-            console.log(reservation)
-          } else {              
-            reservation = {...this.newReservation, reservedKennels}
-            this.selectedReservation(reservation)
-            console.log(reservation)
+            reservation = {
+              ...this.newReservation,
+              creator_id: this.user.user_id,
+              owner: `${this.profile.firstName.trim()} ${this.profile.lastName.trim()}`,
+              reservedKennels
+            };
+            this.selectedReservation(reservation);
+            console.log(reservation);
+          } else {
+            reservation = { ...this.newReservation, reservedKennels };
+            this.selectedReservation(reservation);
+            console.log(reservation);
           }
 
           reservationsRef.get().then(snapShot => {
             if (snapShot.empty) {
-              this.isAvailableMethod(true)
-              this.selectedReservation(reservation)
-              this.$router.push('/reservation/available')
-              return
+              this.isAvailableMethod(true);
+              this.selectedReservation(reservation);
+              this.$router.push("/reservation/available");
+              return;
             }
-            const startDate = moment(this.reservation.checkin_date).valueOf()
-            const endDate = moment(this.reservation.checkout_date).valueOf()
+            const startDate = moment(this.reservation.checkin_date).valueOf();
+            const endDate = moment(this.reservation.checkout_date).valueOf();
 
             snapShot.docs.forEach(doc => {
-              this.availableReservations.push(doc.data())
-            })
+              this.availableReservations.push(doc.data());
+            });
             this.availableReservations.forEach(res => {
-              const checkinDate = res.checkin_date
-              const checkoutDate = res.checkout_date
+              const checkinDate = res.checkin_date;
+              const checkoutDate = res.checkout_date;
 
-              if (!this.isAvailible(startDate, checkinDate, endDate, checkoutDate) && (reservation.reservedKennels[0].kennel_name === res.reservedKennels[0].kennel_name)) {
-                this.isAvailableMethod(false)
-                this.$router.push('/reservation/available')
-                console.log('Not available')
+              if (
+                !this.isAvailible(
+                  startDate,
+                  checkinDate,
+                  endDate,
+                  checkoutDate
+                ) &&
+                reservation.reservedKennels[0].kennel_name ===
+                  res.reservedKennels[0].kennel_name
+              ) {
+                this.isAvailableMethod(false);
+                this.$router.push("/reservation/available");
+                console.log("Not available");
               } else {
-                this.$router.push('/reservation/available')
-                console.log('Available')
+                this.$router.push("/reservation/available");
+                console.log("Available");
               }
-            })
-          })
-        })
+            });
+          });
+        });
       }
-    },
-  },
-}
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -320,7 +416,7 @@ export default {
 
   & button {
     font-size: 1.2rem;
-    margin-top: 60px
+    margin-top: 60px;
   }
 }
 
@@ -328,7 +424,8 @@ export default {
   display: flex;
 }
 
-.checkout, .checkin {
+.checkout,
+.checkin {
   display: flex;
   flex-direction: column;
   margin-right: 10px;
@@ -338,7 +435,8 @@ export default {
   margin: 0px;
 }
 
-.checkin-times, .checkout-times {
+.checkin-times,
+.checkout-times {
   margin-top: 10px;
 }
 
@@ -379,7 +477,9 @@ export default {
     width: 90%;
   }
 
-  .reserve-btn, .show-preview, .kennel-select-btn {
+  .reserve-btn,
+  .show-preview,
+  .kennel-select-btn {
     width: 90%;
   }
 

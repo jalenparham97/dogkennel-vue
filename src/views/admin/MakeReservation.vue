@@ -24,6 +24,7 @@
               <div class="checkin">
                 <label for="checkin">Check In</label>
                 <el-date-picker
+                  @input="checkTime(reservation.checkin_date)"
                   name="checkin"
                   v-model="reservation.checkin_date"
                   type="date"
@@ -31,15 +32,21 @@
                   placeholder="Select drop off date">
                 </el-date-picker>
                 <div class="checkin-times">
-                  <el-radio-group v-model="reservation.checkin_time" size="small">
-                    <el-radio-button label="11am - 1pm"></el-radio-button>
-                    <el-radio-button label="4pm - 6pm"></el-radio-button>
-                  </el-radio-group>
+                  <el-select v-model="reservation.checkin_time" clearable placeholder="Choose drop off time">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.disabled"
+                    ></el-option>
+                  </el-select>
                 </div>
               </div>
               <div class="checkout">
                 <label for="checkout">Check Out</label>
                 <el-date-picker
+                  @input="checkTime(reservation.checkout_date)"
                   name="checkout"
                   v-model="reservation.checkout_date"
                   type="date"
@@ -47,10 +54,15 @@
                   placeholder="Select pick up date">
                 </el-date-picker>
                 <div class="checkout-times">
-                  <el-radio-group v-model="reservation.checkout_time" size="small">
-                    <el-radio-button label="11am - 1pm"></el-radio-button>
-                    <el-radio-button label="4pm - 6pm"></el-radio-button>
-                  </el-radio-group>
+                  <el-select v-model="reservation.checkout_time" clearable placeholder="Choose pick up time">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.disabled"
+                    ></el-option>
+                  </el-select>
                 </div>
               </div>
             </div>
@@ -132,6 +144,23 @@ export default {
       numOfDogs: 1,
       numOfKennels: 1
     },
+    options: [
+      {
+        value: "11am - 1pm",
+        label: "11am - 1pm",
+        disabled: false
+      },
+      {
+        value: "4pm - 6pm",
+        label: "4pm - 6pm",
+        disabled: false
+      },
+      {
+        value: "5pm - 7pm",
+        label: "5pm - 7pm",
+        disabled: true
+      }
+    ],
     availableKennels: [],
     availableReservations: []
   }),
@@ -180,9 +209,26 @@ export default {
     }).then(() => {
       this.updateKennelStatus()
     })
+
+    this.$store.dispatch('selectProfile', this.$route.params.id)
   },
   methods: {
     ...mapActions('reservation', ['isAvailableMethod', 'selectedReservation', 'updateKennelStatus', 'noMoreKennels']),
+    checkTime(date) {
+      const newDate = new Date(date)
+      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      let day = newDate.getDay();
+      
+      this.options[0].disabled = false
+      this.options[1].disabled = false
+      this.options[2].disabled = true
+
+      if (weekdays[day] === 'Sunday') {
+        this.options[0].disabled = true
+        this.options[1].disabled = true
+        this.options[2].disabled = false
+      }
+    },
     isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
       if (((startDate >= checkinDate && startDate <= checkoutDate) || (endDate >= checkinDate && endDate <= checkoutDate)) || (startDate <= checkinDate && endDate >= checkoutDate)) {
         return false
@@ -259,7 +305,6 @@ export default {
 
           const reservation = {...this.newReservation, reservedKennels}
           this.selectedReservation(reservation)
-          console.log(reservation)
 
           reservationsRef.get().then(snapShot => {
             if (snapShot.empty) {
@@ -280,11 +325,9 @@ export default {
 
               if (!this.isAvailible(startDate, checkinDate, endDate, checkoutDate) && (reservation.reservedKennels[0].kennel_name === res.reservedKennels[0].kennel_name)) {
                 this.isAvailableMethod(false)
-                console.log('Not available')
                 this.loading = false
               } else {
                 this.loading = false
-                console.log('Available')
               }
             })
           })

@@ -5,7 +5,7 @@ import store from './store/store'
 import firebase from 'firebase'
 import db from './db/db'
 import VCalendar from 'v-calendar'
-import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog, Option, Button, Input, InputNumber, Autocomplete, Loading} from 'element-ui'
+import { DatePicker, TimePicker, Radio, RadioGroup, RadioButton, Dialog, Select, Option, Button, Input, InputNumber, Autocomplete, Loading } from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -15,7 +15,7 @@ import 'uikit/dist/js/uikit.min.js'
 
 import { mapActions } from 'vuex';
 
-Vue.config.productionTip = false 
+Vue.config.productionTip = false
 
 // configure language
 locale.use(lang)
@@ -28,6 +28,7 @@ Vue.use(Radio)
 Vue.use(RadioGroup)
 Vue.use(RadioButton)
 Vue.use(Dialog)
+Vue.use(Select)
 Vue.use(Option)
 Vue.use(Button)
 Vue.use(Input)
@@ -39,7 +40,7 @@ Vue.use(Loading)
 new Vue({
   router,
   store,
-  async created () {
+  async created() {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.autoLogIn(user)

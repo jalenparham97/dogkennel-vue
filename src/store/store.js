@@ -80,7 +80,7 @@ export default new Vuex.Store({
         commit('setLoading', true)
         const allReservations = []
         reservationsRef.get().then(snapShot => {
-          snapShot.docs.forEach(doc => {
+          snapShot.docs.forEach(doc => { 
             allReservations.push(doc.data())
             commit('setAllReservations', allReservations)
             commit('setLoading', false)
@@ -207,11 +207,8 @@ export default new Vuex.Store({
     saveProfile: (_, payload) => {
       db.collection('profiles').add({...payload})
     },
-    addPetProfile: (_, payload) => {
-      db.collection('pet-profiles').add({...payload, profile_id: uuid()})
-    },
     addPetProfile: ({ state, dispatch }, payload) => {
-      db.collection('pet-profiles').add({...payload, user_id: state.selectedProfile.user_id})
+      db.collection('pet-profiles').add({...payload, user_id: state.selectedProfile.user_id, profile_id: uuid()})
       dispatch('getPetProfiles', state.selectedProfile.user_id)
     },
   },

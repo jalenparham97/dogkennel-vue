@@ -66,6 +66,7 @@ export default {
   },
   methods: { 
     selectProfile(id) {
+      console.log(id)
       this.$store.dispatch('selectProfile', id)
       this.$router.push(`/admin/bfk/profile/${id}`)
     },

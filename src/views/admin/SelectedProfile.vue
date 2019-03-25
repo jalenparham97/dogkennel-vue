@@ -118,6 +118,8 @@
                   <p class="pet pet-age">Age: {{ pet.petAge }}</p>
                 </div>
                 <div class="other-info">
+                  <p class="pet-medicine">Tempermant: {{ pet.tempermant }}</p>
+                  <p class="pet-medicine">Specialty Needs: {{ pet.specialtyNeeds }}</p>
                   <p class="pet-medicine">Medicine: {{ pet.petMedice }}</p>
                   <p class="pet-diet">Diet: {{ pet.petDiet }}</p>
                 </div>
@@ -173,6 +175,12 @@
             ></el-autocomplete>
           </div>
 
+          <label for="tempermant">Tempermant</label>
+          <el-input v-model="newPetProfile.tempermant" type="text" class="form-group" placeholder="Please describe your dogs tempermant e.g. (Personality)" name="tempermant"></el-input>
+
+          <label for="specialtyNeeds">Specialty Needs</label>
+          <el-input v-model="newPetProfile.specialtyNeeds" type="text" class="form-group" placeholder="Specialty needs e.g. (If your dog is blind, deaf, diabetic etc.)" name="specialtyNeeds"></el-input>
+
           <label for="petMedicine">Medicine</label>
           <el-input v-model="newPetProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
 
@@ -195,30 +203,36 @@
           <h2>Edit Pet</h2>
 
           <label for="petName">Name</label>
-          <el-input v-model="petProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
+          <el-input v-model="updatedPetProfile.petName" type="text" class="form-group" placeholder="Name" name="petName"></el-input>
 
           <label for="petAge">Age</label>
-          <el-input v-model="petProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
+          <el-input v-model="updatedPetProfile.petAge" type="text" class="form-group" placeholder="Age" name="petAge"></el-input>
 
           <div class="pet-breed">
             <label for="petBreed">Breed</label>
             <el-autocomplete
               class="inline-input"
-              v-model="petProfile.petBreed"
+              v-model="updatedPetProfile.petBreed"
               :fetch-suggestions="querySearch"
               placeholder="Pet Breed"
             ></el-autocomplete>
           </div>
 
+          <label for="tempermant">Tempermant</label>
+          <el-input v-model="updatedPetProfile.tempermant" type="text" class="form-group" placeholder="Please describe your dogs tempermant e.g. (Personality)" name="tempermant"></el-input>
+
+          <label for="specialtyNeeds">Specialty Needs</label>
+          <el-input v-model="updatedPetProfile.specialtyNeeds" type="text" class="form-group" placeholder="Specialty needs e.g. (If your dog is blind, deaf, diabetic etc.)" name="specialtyNeeds"></el-input>
+
           <label for="petMedicine">Medicine</label>
-          <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
+          <el-input v-model="updatedPetProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
 
           <label for="petDiet">Dietary Restrictions</label>
-          <el-input v-model="petProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
+          <el-input v-model="updatedPetProfile.petDiet" type="text" class="form-group" placeholder="Dietary Restrictions" name="petDiet"></el-input>
         </div>
 
         <span slot="footer" class="dialog-footer">
-         <el-button @click="editPetDialog = false">Cancel</el-button>
+          <el-button @click="editPetDialog = false">Cancel</el-button>
           <el-button type="primary" @click="editPetProfile">Save</el-button>
         </span>
       </el-dialog>
@@ -249,17 +263,13 @@ export default {
       vetPhone: '',
       vetFax: ''  
     },
-    petProfile: {
-      petName: '',
-      petAge: '',
-      petBreed: '',
-      petMedice: '',
-      petDiet: ''
-    },
+    updatedPetProfile: {},
     newPetProfile: {
       petName: '',
       petAge: '',
       petBreed: '',
+      tempermant: '',
+      specialtyNeeds: '',
       petMedice: 'N/A',
       petDiet: 'N/A'
     },
@@ -300,18 +310,18 @@ export default {
     },
     openEditPet(petProfile) {
       this.editPetDialog = true
-      this.petProfile = petProfile
+      this.updatedPetProfile = petProfile
     },
     editPetProfile() {
-      this.updatePetProfile(this.petProfile)
+      this.updatePetProfile(this.updatedPetProfile)
       this.editPetDialog = false
     },
     openAddPet() {
-      // this.newPetProfile.petName = ''
-      // this.newPetProfile.petAge = ''
-      // this.newPetProfile.petBreed = ''
-      // this.newPetProfile.petMedice = ''
-      // this.newPetProfile.petDiet = ''
+      this.newPetProfile.petName = ''
+      this.newPetProfile.petAge = ''
+      this.newPetProfile.petBreed = ''
+      this.newPetProfile.petMedice = ''
+      this.newPetProfile.petDiet = ''
       this.addPetDialog = true
     },
     cancel(res) {

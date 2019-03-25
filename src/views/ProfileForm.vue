@@ -58,6 +58,12 @@
             ></el-autocomplete>
           </div>
 
+          <label for="tempermant">Tempermant</label>
+          <el-input v-model="petProfile.petTempermant" type="text" class="form-group" placeholder="Please describe your dogs tempermant e.g. (Personality)" name="tempermant"></el-input>
+
+          <label for="specialtyNeeds">Specialty Needs</label>
+          <el-input v-model="petProfile.petSpecialtyNeeds" type="text" class="form-group" placeholder="Please describe your pets specialty needs e.g. (If your dog is blind, deaf, diabetic etc.)" name="specialtyNeeds"></el-input>
+
           <label for="petMedicine">Medicine</label>
           <el-input v-model="petProfile.petMedice" type="text" class="form-group" placeholder="Medicine" name="petMedicine"></el-input>
 
@@ -99,6 +105,8 @@ export default {
         petName: '',
         petAge: '',
         petBreed: '',
+        petTempermant: '',
+        petSpecialtyNeeds: '',
         petMedice: '',
         petDiet: '',
         profile_id: uuid()

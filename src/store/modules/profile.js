@@ -1,5 +1,6 @@
 import router from '@/router'
 import db from '@/db/db'
+import uuid from 'uuid'
 
 const state = {
   profile: null,
@@ -37,7 +38,7 @@ const actions = {
     })
   },
   addPetProfile: ({ rootState, dispatch }, payload) => {
-    db.collection('pet-profiles').add({...payload, user_id: rootState.auth.user.user_id})
+    db.collection('pet-profiles').add({...payload, user_id: rootState.auth.user.user_id, profile_id: uuid()})
     dispatch('getPetProfiles')
   },
   getPetProfiles: ({ rootState, commit }) => {
@@ -74,6 +75,7 @@ const actions = {
     })
   },
   updatePetProfile(_, petProfile) {
+    console.log(petProfile)
     const petProfileRef = db.collection('pet-profiles').where('profile_id', '==', petProfile.profile_id)
 
     petProfileRef.get().then(snapShot => {
@@ -82,11 +84,13 @@ const actions = {
           petName: petProfile.petName,
           petAge: petProfile.petAge,
           petBreed: petProfile.petBreed,
+          specialtyNeeds: petProfile.specialtyNeeds,
+          tempermant: petProfile.tempermant,
           petMedice: petProfile.petMedice,
           petDiet: petProfile.petDiet
         })
       })
-    })  
+    }).catch(err => console.log(err))  
   },
   resetState: ({ state, commit }) => {
     commit('resetProfile', null)
