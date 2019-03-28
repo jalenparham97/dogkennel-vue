@@ -117,8 +117,11 @@ import db from "../db/db";
 import Navbar from "../components/Navbar";
 import { mapGetters, mapActions } from "vuex";
 import moment from "moment";
+import Holidays from 'date-holidays'
 import uuid from "uuid";
 import { Notification } from "element-ui";
+
+const hd = new Holidays('US')
 
 export default {
   name: "reservation",
@@ -213,19 +216,53 @@ export default {
       "noMoreKennels",
       "updateKennelStatus"
     ]),
+    setWeekendTimeDisabled() {
+      this.options[0].disabled = true
+      this.options[1].disabled = true
+      this.options[2].disabled = false
+    },
+    setHolidayTimeDisabled() {
+      this.options[0].disabled = true
+      this.options[1].disabled = true
+      this.options[2].disabled = true
+    },
     checkTime(date) {
       const newDate = new Date(date)
       const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      let day = newDate.getDay();
+      const day = newDate.getDay();
       
       this.options[0].disabled = false
       this.options[1].disabled = false
       this.options[2].disabled = true
 
       if (weekdays[day] === 'Sunday') {
-        this.options[0].disabled = true
+        this.setWeekendTimeDisabled()
+      } else if (hd.isHoliday(date).name === 'Christmas Eve' || hd.isHoliday(date).name === 'New Year\'s Eve') {
         this.options[1].disabled = true
-        this.options[2].disabled = false
+        this.options[2].disabled = true
+      } else {
+        if (hd.isHoliday(date).name === 'Christmas Day') {
+          this.setHolidayTimeDisabled()
+          Notification.error({
+            title: "Closed",
+            message: `Sorry we are not open on Christmas Day`,
+            duration: 4000
+          });
+        } else if (hd.isHoliday(date).name === 'Thanksgiving Day') {
+          this.setHolidayTimeDisabled()
+          Notification.error({
+            title: "Closed",
+            message: `Sorry we are not open on Thanksgiving Day`,
+            duration: 4000
+          });
+        } else if (hd.isHoliday(date).name === 'New Year\'s Day') {
+          this.setHolidayTimeDisabled()
+          Notification.error({
+            title: "Closed",
+            message: `Sorry we are not open on New Years Day`,
+            duration: 4000
+          });
+        }
       }
     },
     isAvailible: (startDate, checkinDate, endDate, checkoutDate) => {
