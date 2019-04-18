@@ -102,19 +102,17 @@
           <p>Dogs: $20 per dog per day</p>
         </div>
 
-        <div class="Multiple">
-          <h4>Multiple Dogs / Multiple Kennels</h4>
-          <p>Dogs: $17 per dog per day</p>
+        <div class="shots-container">
+          <h4>Must Have These Shot Records Prior To Boarding</h4>
+          <ul class="shots">
+            <li class="shot">CANINE BIVALENT INFLUENZA VACCINE</li>
+            <li class="shot">DHL</li>
+            <li class="shot">PARVO</li>
+            <li class="shot">RABIES</li>
+            <li class="shot">BORDETELLA</li>
+          </ul>
+          <el-button class="more-btn" type="primary" @click="$router.push('/about')">More Info</el-button>
         </div>
-
-        <p
-          class="rules"
-        >If you have multiple dogs you can put them into one Kennel for a discounted rate. There is a restriction to how you can bundle your dogs into kennels. It depends on the size of your dogs.</p>
-
-        <p class="sizes">3 small dogs = 1 Kennel</p>
-        <p class="sizes">2 small dogs = 1 Kennel</p>
-        <p class="sizes">2 medium dogs = 1 Kennel</p>
-        <p class="sizes">1 Large Dog / 1 Small – Medium Dog = 1 Kennel</p>
       </div>
     </div>
   </div>
@@ -496,6 +494,11 @@ export default {
   margin-top: 10px;
 }
 
+.more-btn {
+  margin-bottom: 50px;
+  font-size: 1.2rem;
+}
+
 @media only screen and (max-width: 1050px) {
   .res-container {
     flex-direction: column;
@@ -518,9 +521,12 @@ export default {
   }
 
   .reservation-information {
-    // width: 90%;
     text-align: center;
     margin: 0 auto;
+  }
+
+  .shots {
+    text-align: left;
   }
 }
 

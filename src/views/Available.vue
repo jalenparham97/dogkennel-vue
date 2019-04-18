@@ -31,29 +31,8 @@
           @click="$router.push(`/profile/${newUserReservation.creator_id}`)"
         >Continue</el-button>
       </div>
-    </div>
 
-    <div class="reservation-information">
-      <h2>Reservation Information</h2>
-
-      <div class="single">
-        <h4>Single Dog / Single Kennel</h4>
-        <p>Dogs: $20 per dog per day</p>
-      </div>
-
-      <div class="Multiple">
-        <h4>Multiple Dogs / Multiple Kennels</h4>
-        <p>Dogs: $17 per dog per day</p>
-      </div>
-
-      <p
-        class="rules"
-      >If you have multiple dogs you can put them into one Kennel for a discounted rate. There is a restriction to how you can bundle your dogs into kennels. It depends on the size of your dogs.</p>
-
-      <p class="sizes">3 small dogs = 1 Kennel</p>
-      <p class="sizes">2 small dogs = 1 Kennel</p>
-      <p class="sizes">2 medium dogs = 1 Kennel</p>
-      <p class="sizes">1 Large Dog / 1 Small – Medium Dog = 1 Kennel</p>
+      <el-button type="primary" @click="$router.push('/reservation')">Back</el-button>
     </div>
   </div>
 </template>
